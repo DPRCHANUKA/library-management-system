@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover Books - LibraryHub</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="page-container">
+    <div class="page-header">
+      <h1>📖 Discover Books</h1>
+    </div>
+
+    <div class="book-grid" id="bookGrid">
+      <!-- Books loaded dynamically -->
+    </div>
+  </div>
+
+  <!-- Personal Shelf Button -->
+  <button class="shelf-btn-fixed" id="shelfBtn">📚 Personal Shelf</button>
+
+  <!-- Personal Shelf Modal -->
+  <div class="modal-overlay" id="shelfModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>📚 Personal Shelf</h2>
+        <button class="modal-close" id="closeShelf">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Borrowed Books Section -->
+        <div class="shelf-section">
+          <h3>📕 Borrowed Books <span id="borrowCount" style="font-size:0.8rem; color: var(--text-muted);"></span></h3>
+          <div id="borrowedList">
+            <p class="shelf-empty">No borrowed books yet.</p>
+          </div>
+        </div>
+
+        <!-- Wishlist Section -->
+        <div class="shelf-section">
+          <h3>💛 Wishlist</h3>
+          <div id="wishlistList">
+            <p class="shelf-empty">Your wishlist is empty.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Confirm Modal -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <p id="confirmMsg">Are you sure?</p>
+      <div class="confirm-actions">
+        <button class="btn btn-outline btn-sm" id="confirmNo">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="confirmYes">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/discover.js"></script>
+</body>
+</html>
