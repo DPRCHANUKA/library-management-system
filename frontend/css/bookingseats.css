@@ -1,0 +1,182 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #0F172A;
+  color: #E5E7EB;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Title */
+h1 {
+  margin-bottom: 20px;
+  color: #60A5FA;
+  letter-spacing: 0.5px;
+}
+.title-3d {
+  font-size: 32px;
+  font-weight: bold;
+  color: #60A5FA;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+
+  /* 3D layered shadow effect */
+  text-shadow:
+    1px 1px 0 #1E3A8A,
+    2px 2px 0 #1E3A8A,
+    3px 3px 0 #0F172A,
+    4px 4px 10px rgba(84, 121, 167, 0.473);
+}
+
+/* Floor */
+.floor {
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.library {
+  transform: rotateX(25deg);
+  transform-style: preserve-3d;
+  display: grid;
+  grid-template-columns: repeat(4, 180px);
+  gap: 30px;
+  padding: 40px;
+  background: #1E293B;
+  border-radius: 14px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+}
+
+/* Table */
+.table {
+  background: #0F172A;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  transform: translateZ(20px);
+}
+
+.table h3 {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #60A5FA;
+}
+
+/* Seats */
+.seats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.seat {
+  padding: 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+/* Available seats */
+.available {
+  background: #3A6EA5;
+  color: #fff;
+}
+
+/* Booked seats */
+.booked {
+  background: #1E3A8A;
+  color: #E5E7EB;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Hover effect */
+.seat:hover:not(.booked) {
+  transform: scale(1.12);
+  background: #60A5FA;
+  color: #0F172A;
+}
+
+/* Legend */
+.legend {
+  margin-top: 20px;
+}
+
+.legend span {
+  display: inline-block;
+  margin: 0 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+}
+
+/* Legend colors */
+.legend .available {
+  background: #3A6EA5;
+}
+
+.legend .booked {
+  background: #1E3A8A;
+}
+#drawer-form {
+  background: #1E293B;
+  color: #E5E7EB;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
+
+#drawer-form h2 {
+  color: #60A5FA;
+}
+
+#drawer-form input,
+#drawer-form select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0F172A;
+  color: #E5E7EB;
+}
+
+#drawer-form input:focus,
+#drawer-form select:focus {
+  outline: none;
+  border: 1px solid #60A5FA;
+  box-shadow: 0 0 0 2px rgba(96,165,250,0.3);
+  
+}
+#drawer-form input[type="time"],
+#drawer-form input[type="date"] {
+  color-scheme: dark;
+}
+
+#drawer-form label {
+  color: #E5E7EB;
+  font-size: 14px;
+}
+
+#drawer-form button {
+  background: #3A6EA5;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#drawer-form button:hover {
+  background: #60A5FA;
+  color: #0F172A;
+}

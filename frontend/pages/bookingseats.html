@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/bookingseats.css">
+  <title>3D Library Floor UI</title>
+</head>
+
+<body>
+
+  <h1 class="title-3d"> Library Floor</h1>
+
+  <div class="floor">
+    <div class="library">
+
+      <div class="table">
+        <h3>Table 1</h3>
+        <div class="seats">
+          <button class="seat available" data-seat="A1">A1</button>
+          <button class="seat available" data-seat="A2">A2</button>
+          <button class="seat booked" data-seat="A3">A3</button>
+          <button class="seat available" data-seat="A4">A4</button>
+            <button class="seat available" data-seat="A5">A5</button>
+          <button class="seat available" data-seat="A6">A6</button>
+          <button class="seat booked" data-seat="A7">A7</button>
+          <button class="seat available" data-seat="A8">A8</button>
+        </div>
+      </div>
+
+      <div class="table">
+        <h3>Table 2</h3>
+        <div class="seats">
+          <button class="seat available" data-seat="B1">B1</button>
+          <button class="seat booked" data-seat="B2">B2</button>
+          <button class="seat available" data-seat="B3">B3</button>
+          <button class="seat available" data-seat="B4">B4</button>
+           <button class="seat available" data-seat="B5">B5</button>
+          <button class="seat booked" data-seat="B6">B6</button>
+          <button class="seat available" data-seat="B7">B7</button>
+          <button class="seat available" data-seat="B8">B8</button>
+        </div>
+      </div>
+
+      <div class="table">
+        <h3>Table 3</h3>
+        <div class="seats">
+          <button class="seat available" data-seat="C1">C1</button>
+          <button class="seat available" data-seat="C2">C2</button>
+          <button class="seat booked" data-seat="C3">C3</button>
+          <button class="seat available" data-seat="C4">C4</button>
+            <button class="seat available" data-seat="C5">C5</button>
+          <button class="seat available" data-seat="C6">C6</button>
+          <button class="seat booked" data-seat="C7">C7</button>
+          <button class="seat available" data-seat="C8">C8</button>
+        </div>
+      </div>
+
+      <div class="table">
+        <h3>Table 4</h3>
+        <div class="seats">
+          <button class="seat available" data-seat="D1">D1</button>
+          <button class="seat booked" data-seat="D2">D2</button>
+          <button class="seat available" data-seat="D3">D3</button>
+          <button class="seat available" data-seat="D4">D4</button>
+             <button class="seat available" data-seat="D5">D5</button>
+          <button class="seat booked" data-seat="D6">D6</button>
+          <button class="seat available" data-seat="D7">D7</button>
+          <button class="seat available" data-seat="D8">D8</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="available">Available</span>
+    <span class="booked">Booked</span>
+  </div>
+
+  <!-- Drawer -->
+<div id="drawer-form" 
+  class="fixed top-0 left-0 z-40 h-screen w-80 p-4 overflow-y-auto transition-transform -translate-x-full bg-white shadow-lg">
+
+  <div class="flex items-center justify-between mb-4 border-b pb-2">
+    <h5 id="drawerTitle" class="text-lg font-semibold">Booking</h5>
+
+    <button id="closeDrawer" class="text-gray-500 hover:text-black">
+      ✖
+    </button>
+  </div>
+
+  <form class="space-y-4">
+  <!-- Name -->
+  <div>
+    <label class="block text-sm font-medium mb-1">Name</label>
+    <input type="text" id="nameInput"
+      class="w-full border rounded-lg p-2"
+      placeholder="eg:- John Doe" required>
+  </div>
+
+  <!-- Student ID -->
+  <div>
+    <label class="block text-sm font-medium mb-1">Student ID /Lecture ID</label>
+    <input type="text" id="studentIdInput"
+      class="w-full border rounded-lg p-2"
+      placeholder="eg:- IT2345/L1234" required>
+  </div>
+  <!-- Seat -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Seat</label>
+      <input type="text" id="seatInput" readonly
+        class="w-full border rounded-lg p-2">
+    </div>
+  <!-- Date -->
+  <div>
+    <label class="block text-sm font-medium mb-1">Date</label>
+    <input type="text" id="dateInput" readonly
+      class="w-full border rounded-lg p-2">
+  </div>
+
+<!-- From Time -->
+<div>
+  <label class="block text-sm font-medium mb-1">From Time</label>
+  <input type="time" id="fromTime"
+    class="w-full border rounded-lg p-2" required>
+</div>
+
+<!-- To Time -->
+<div>
+  <label class="block text-sm font-medium mb-1">To Time</label>
+  <input type="time" id="toTime"
+    class="w-full border rounded-lg p-2" required>
+</div>
+    <button type="submit"
+      class="w-full bg-blue-600 text-white py-2 rounded-lg">
+      Confirm Booking
+    </button>
+  </form>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const seats = document.querySelectorAll(".seat.available");
+
+  const drawer = document.getElementById("drawer-form");
+  const seatInput = document.getElementById("seatInput");
+  const drawerTitle = document.getElementById("drawerTitle");
+  const closeBtn = document.getElementById("closeDrawer");
+  const dateInput = document.getElementById("dateInput");
+
+  seats.forEach(seat => {
+    seat.addEventListener("click", () => {
+
+      const seatNumber = seat.getAttribute("data-seat");
+
+      // Set seat
+      seatInput.value = seatNumber;
+      drawerTitle.innerText = "Booking for Seat " + seatNumber;
+
+      // Set current date
+      const now = new Date();
+      const date = now.toLocaleDateString();
+      dateInput.value = date;
+
+      // Open drawer
+      drawer.classList.remove("-translate-x-full");
+    });
+  });
+
+  // Close drawer
+  closeBtn.addEventListener("click", () => {
+    drawer.classList.add("-translate-x-full");
+  });
+
+});
+</script>
+</body>
+</html>
