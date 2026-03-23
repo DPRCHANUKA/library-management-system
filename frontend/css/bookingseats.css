@@ -1,0 +1,96 @@
+ body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .floor {
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .library {
+      transform: rotateX(25deg);
+      transform-style: preserve-3d;
+      display: grid;
+      grid-template-columns: repeat(4, 180px);
+      gap: 30px;
+      padding: 40px;
+      background: #e0e6ed;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .table {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+      transform: translateZ(20px);
+    }
+
+    .table h3 {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .seats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .seat {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+
+    .available {
+      background: #4caf50;
+      color: white;
+    }
+
+    .booked {
+      background: #e74c3c;
+      color: white;
+      cursor: not-allowed;
+    }
+
+    .seat:hover:not(.booked) {
+      transform: scale(1.1);
+    }
+
+    .legend {
+      margin-top: 20px;
+    }
+
+    .legend span {
+      display: inline-block;
+      margin: 0 10px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      color: white;
+      font-size: 12px;
+    }
+
+    .legend .available {
+      background: #4caf50;
+    }
+
+    .legend .booked {
+      background: #e74c3c;
+    }
