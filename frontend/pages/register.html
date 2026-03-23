@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - LibraryHub</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .val-container { margin-top: 0.2rem; font-size: 0.8rem; }
+    .val-item { display: flex; align-items: center; gap: 0.3rem; margin-top: 0.1rem; color: var(--text-muted); }
+    .val-item.valid { color: var(--success); }
+    .val-item.invalid { color: var(--danger); }
+    .val-item.valid::before { content: "✓"; font-weight: bold; }
+    .val-item.invalid::before { content: "✕"; font-weight: bold; }
+    
+    .input-wrapper { position: relative; }
+    .status-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-weight: bold; }
+    .status-icon.valid { color: var(--success); content: "✓"; }
+    .status-icon.invalid { color: var(--danger); content: "✕"; }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <h2>Create Account</h2>
+      <p class="subtitle">Join LibraryHub today</p>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="studentId">Student ID</label>
+          <div class="input-wrapper">
+            <input type="text" id="studentId" placeholder="Enter your unique Student ID" required>
+            <span id="studentIdIcon" class="status-icon"></span>
+          </div>
+          <div class="val-container">
+            <div id="val-id-format" class="val-item">Student ID must be exactly 10 alphanumeric characters</div>
+            <div id="val-id-unique" class="val-item">Student ID must be unique</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <div class="input-wrapper">
+            <input type="text" id="name" placeholder="Enter your full name" required>
+            <span id="nameIcon" class="status-icon"></span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" placeholder="Create a password" required>
+            <span id="passwordIcon" class="status-icon"></span>
+          </div>
+          <div class="val-container">
+            <div id="val-pw-len" class="val-item">Password must be at least 8 characters</div>
+            <div id="val-pw-up" class="val-item">Password must contain at least 1 uppercase letter</div>
+            <div id="val-pw-low" class="val-item">Password must contain at least 1 lowercase letter</div>
+            <div id="val-pw-num" class="val-item">Password must contain at least 1 number</div>
+            <div id="val-pw-spec" class="val-item">Password must contain at least 1 special character (!@#$%^&*)</div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Sign Up</button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      updateNavbar("../");
+
+      const studentIdInput = document.getElementById("studentId");
+      const nameInput = document.getElementById("name");
+      const passwordInput = document.getElementById("password");
+      const submitBtn = document.getElementById("submitBtn");
+
+      let isIdValid = false;
+      let isNameValid = false;
+      let isPasswordValid = false;
+      let checkIdTimeout = null;
+
+      // Update validation UI helper
+      function setValState(elementId, isValid, pristine = true) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        el.classList.remove("valid", "invalid");
+        if (!pristine) {
+          el.classList.add(isValid ? "valid" : "invalid");
+        }
+      }
+
+      function updateSubmitButton() {
+        submitBtn.disabled = !(isIdValid && isNameValid && isPasswordValid);
+      }
+
+      // 1. Student ID Validation
+      studentIdInput.addEventListener("input", () => {
+        const val = studentIdInput.value.trim();
+        const pristine = val.length === 0;
+        const icon = document.getElementById("studentIdIcon");
+        
+        // Format check
+        const formatValid = /^[A-Za-z0-9]{10}$/.test(val);
+        setValState("val-id-format", formatValid, pristine);
+
+        if (pristine) {
+          icon.textContent = "";
+          icon.className = "status-icon";
+          setValState("val-id-unique", false, true);
+          isIdValid = false;
+          updateSubmitButton();
+          return;
+        }
+
+        icon.textContent = "✕";
+        icon.className = "status-icon invalid";
+        isIdValid = false;
+        
+        setValState("val-id-unique", false, true);
+
+        if (formatValid) {
+          // Debounce unique check
+          clearTimeout(checkIdTimeout);
+          checkIdTimeout = setTimeout(async () => {
+            try {
+              const result = await fetch('/api/auth/check-id/' + val).then(r => r.json());
+              const uniqueValid = !result.exists;
+              setValState("val-id-unique", uniqueValid, false);
+              
+              if (uniqueValid) {
+                icon.textContent = "✓";
+                icon.className = "status-icon valid";
+                isIdValid = true;
+              } else {
+                icon.textContent = "✕";
+                icon.className = "status-icon invalid";
+              }
+              updateSubmitButton();
+            } catch (err) {
+              console.error("Failed to check ID");
+            }
+          }, 400);
+        } else {
+          updateSubmitButton();
+        }
+      });
+
+      // 2. Name Validation
+      nameInput.addEventListener("input", () => {
+        const val = nameInput.value.trim();
+        const icon = document.getElementById("nameIcon");
+        isNameValid = val.length > 0;
+        
+        if (val.length === 0) {
+          icon.textContent = "";
+          icon.className = "status-icon";
+        } else {
+          icon.textContent = "✓";
+          icon.className = "status-icon valid";
+        }
+        updateSubmitButton();
+      });
+
+      // 3. Password Validation
+      passwordInput.addEventListener("input", () => {
+        const val = passwordInput.value;
+        const pristine = val.length === 0;
+        const icon = document.getElementById("passwordIcon");
+
+        const lenValid = val.length >= 8;
+        const upValid = /[A-Z]/.test(val);
+        const lowValid = /[a-z]/.test(val);
+        const numValid = /[0-9]/.test(val);
+        const specValid = /[!@#$%^&*]/.test(val);
+
+        setValState("val-pw-len", lenValid, pristine);
+        setValState("val-pw-up", upValid, pristine);
+        setValState("val-pw-low", lowValid, pristine);
+        setValState("val-pw-num", numValid, pristine);
+        setValState("val-pw-spec", specValid, pristine);
+
+        isPasswordValid = lenValid && upValid && lowValid && numValid && specValid;
+
+        if (pristine) {
+          icon.textContent = "";
+          icon.className = "status-icon";
+        } else if (isPasswordValid) {
+          icon.textContent = "✓";
+          icon.className = "status-icon valid";
+        } else {
+          icon.textContent = "✕";
+          icon.className = "status-icon invalid";
+        }
+
+        updateSubmitButton();
+      });
+
+      // Submit
+      document.getElementById("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        if (!isIdValid || !isNameValid || !isPasswordValid) return;
+
+        const errorMsg = document.getElementById("errorMsg");
+        errorMsg.classList.remove("show");
+
+        const studentId = studentIdInput.value.trim();
+        const name = nameInput.value.trim();
+        const password = passwordInput.value;
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Creating Account...";
+
+        try {
+          const result = await apiSignUp({ studentId, name, password });
+          if (result.error) {
+            errorMsg.textContent = result.error;
+            errorMsg.classList.add("show");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign Up";
+            return;
+          }
+          showToast("Account created! Redirecting to Sign In...", "success");
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1200);
+        } catch (err) {
+          errorMsg.textContent = "Something went wrong. Please try again.";
+          errorMsg.classList.add("show");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Sign Up";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
