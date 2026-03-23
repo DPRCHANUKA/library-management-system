@@ -125,3 +125,58 @@ h1 {
 .legend .booked {
   background: #1E3A8A;
 }
+#drawer-form {
+  background: #1E293B;
+  color: #E5E7EB;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
+
+#drawer-form h2 {
+  color: #60A5FA;
+}
+
+#drawer-form input,
+#drawer-form select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0F172A;
+  color: #E5E7EB;
+}
+
+#drawer-form input:focus,
+#drawer-form select:focus {
+  outline: none;
+  border: 1px solid #60A5FA;
+  box-shadow: 0 0 0 2px rgba(96,165,250,0.3);
+  
+}
+#drawer-form input[type="time"],
+#drawer-form input[type="date"] {
+  color-scheme: dark;
+}
+
+#drawer-form label {
+  color: #E5E7EB;
+  font-size: 14px;
+}
+
+#drawer-form button {
+  background: #3A6EA5;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#drawer-form button:hover {
+  background: #60A5FA;
+  color: #0F172A;
+}
