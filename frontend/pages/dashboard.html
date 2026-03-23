@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - LibraryHub</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="page-container">
+    <div class="page-header">
+      <h1>📊 Booking Dashboard</h1>
+      <button class="btn btn-primary" id="addBookBtn">+ Add Books</button>
+    </div>
+
+    <div class="dashboard-table-wrapper">
+      <table class="dashboard-table" id="booksTable">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Book Name</th>
+            <th>Genre</th>
+            <th>Booker Name</th>
+            <th>Booked Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="booksTableBody">
+          <!-- Books loaded dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add Book Modal -->
+  <div class="modal-overlay" id="addBookModal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>Add New Book</h2>
+        <button class="modal-close" id="closeAddBook">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addBookForm" class="add-book-form" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="bookName">Book Name *</label>
+            <input type="text" id="bookName" placeholder="Enter book name" required>
+          </div>
+          <div class="form-group">
+            <label for="bookGenre">Genre *</label>
+            <select id="bookGenre" required>
+              <option value="">Select Genre</option>
+              <option value="ICT">ICT</option>
+              <option value="Science">Science</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Economics">Economics</option>
+              <option value="Business">Business</option>
+              <option value="English">English</option>
+              <option value="Engineering">Engineering</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Book Image</label>
+            <div class="file-upload-area" id="fileUploadArea">
+              <p>📷 Click to upload image or drag & drop</p>
+              <input type="file" id="bookImage" accept="image/*">
+            </div>
+            <p id="fileName" style="font-size:0.8rem; color: var(--text-muted); margin-top:0.4rem;"></p>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="cancelAddBook">Cancel</button>
+        <button class="btn btn-primary" id="submitAddBook">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Confirm Modal -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <p id="confirmMsg">Are you sure you want to delete this book?</p>
+      <div class="confirm-actions">
+        <button class="btn btn-outline btn-sm" id="confirmNo">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="confirmYes">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

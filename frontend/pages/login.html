@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - LibraryHub</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <h2>Welcome Back</h2>
+      <p class="subtitle">Sign in to your account</p>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="studentId">Student ID</label>
+          <input type="text" id="studentId" placeholder="Enter your Student ID" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign In</button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      updateNavbar("../");
+
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const errorMsg = document.getElementById("errorMsg");
+        errorMsg.classList.remove("show");
+
+        const studentId = document.getElementById("studentId").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!studentId || !password) {
+          errorMsg.textContent = "All fields are required";
+          errorMsg.classList.add("show");
+          return;
+        }
+
+        try {
+          const result = await apiSignIn({ studentId, password });
+          if (result.error) {
+            errorMsg.textContent = result.error;
+            errorMsg.classList.add("show");
+            return;
+          }
+          localStorage.setItem("token", result.token);
+          localStorage.setItem("user", JSON.stringify(result.user));
+          showToast("Signed in successfully!", "success");
+          setTimeout(() => {
+            window.location.href = "../index.html";
+          }, 800);
+        } catch (err) {
+          errorMsg.textContent = "Something went wrong. Please try again.";
+          errorMsg.classList.add("show");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
