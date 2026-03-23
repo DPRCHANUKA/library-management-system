@@ -13,6 +13,20 @@ h1 {
   color: #60A5FA;
   letter-spacing: 0.5px;
 }
+.title-3d {
+  font-size: 32px;
+  font-weight: bold;
+  color: #60A5FA;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+
+  /* 3D layered shadow effect */
+  text-shadow:
+    1px 1px 0 #1E3A8A,
+    2px 2px 0 #1E3A8A,
+    3px 3px 0 #0F172A,
+    4px 4px 10px rgba(84, 121, 167, 0.473);
+}
 
 /* Floor */
 .floor {
