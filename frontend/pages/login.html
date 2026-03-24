@@ -5,6 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In - LibraryHub</title>
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .toast {
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-top: 10px;
+      animation: slideIn 0.3s ease;
+    }
+    .toast.success { background: #10B981; }
+    .toast.error { background: #EF4444; }
+    .toast.info { background: #3B82F6; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -17,7 +45,7 @@
       <h2>Welcome Back</h2>
       <p class="subtitle">Sign in to your account</p>
 
-      <div class="error-msg" id="errorMsg"></div>
+      <div class="error-msg" id="errorMsg" style="display: none;"></div>
 
       <form id="loginForm">
         <div class="form-group">
@@ -28,7 +56,7 @@
           <label for="password">Password</label>
           <input type="password" id="password" placeholder="Enter your password" required>
         </div>
-        <button type="submit" class="btn btn-primary">Sign In</button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Sign In</button>
       </form>
 
       <div class="auth-footer">
@@ -39,43 +67,137 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <script src="../js/api.js"></script>
-  <script src="../js/auth.js"></script>
   <script>
+    // Toast notification function
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+      
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 3000);
+    }
+
+    // Update navbar function
+    function updateNavbar(prefix = "") {
+      const navLinks = document.getElementById("navLinks");
+      if (!navLinks) return;
+
+      const homeLink = prefix ? prefix + "index.html" : "/";
+      const pagesPrefix = prefix ? "" : "pages/";
+
+      navLinks.innerHTML = `
+        <a href="${homeLink}">Home</a>
+        <a href="${pagesPrefix}login.html" class="nav-btn-outline">Sign In</a>
+        <a href="${pagesPrefix}register.html" class="nav-btn">Sign Up</a>
+      `;
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+      // Initialize navbar
       updateNavbar("../");
 
-      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      const loginForm = document.getElementById("loginForm");
+      const submitBtn = document.getElementById("submitBtn");
+      const errorMsg = document.getElementById("errorMsg");
+      const studentIdInput = document.getElementById("studentId");
+      const passwordInput = document.getElementById("password");
+
+      loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const errorMsg = document.getElementById("errorMsg");
-        errorMsg.classList.remove("show");
+        
+        // Hide any previous error
+        errorMsg.style.display = "none";
+        errorMsg.textContent = "";
+        
+        const studentId = studentIdInput.value.trim();
+        const password = passwordInput.value;
 
-        const studentId = document.getElementById("studentId").value.trim();
-        const password = document.getElementById("password").value;
-
+        // Validate inputs
         if (!studentId || !password) {
-          errorMsg.textContent = "All fields are required";
-          errorMsg.classList.add("show");
+          errorMsg.textContent = "❌ All fields are required";
+          errorMsg.style.display = "block";
           return;
         }
 
+        // Validate Student ID format (10 alphanumeric characters)
+        if (!/^[A-Za-z0-9]{10}$/.test(studentId)) {
+          errorMsg.textContent = "❌ Student ID must be exactly 10 alphanumeric characters";
+          errorMsg.style.display = "block";
+          return;
+        }
+
+        // Disable button while processing
+        submitBtn.disabled = true;
+        submitBtn.classList.add("loading");
+        submitBtn.textContent = "Signing In...";
+
         try {
-          const result = await apiSignIn({ studentId, password });
-          if (result.error) {
-            errorMsg.textContent = result.error;
-            errorMsg.classList.add("show");
-            return;
+          console.log("Attempting login for:", studentId);
+          
+          // Direct fetch to API
+          const response = await fetch('http://localhost:5000/api/auth/signin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ studentId, password })
+          });
+          
+          const result = await response.json();
+          console.log("Server response:", result);
+          
+          if (!response.ok) {
+            throw new Error(result.error || "Login failed");
           }
+          
+          if (result.error) {
+            throw new Error(result.error);
+          }
+          
+          // Save user data
           localStorage.setItem("token", result.token);
           localStorage.setItem("user", JSON.stringify(result.user));
-          showToast("Signed in successfully!", "success");
+          
+          console.log("Login successful! User:", result.user);
+          
+          showToast(`✅ Welcome back, ${result.user.name}!`, "success");
+          
+          // Redirect after short delay
           setTimeout(() => {
-            window.location.href = "../index.html";
-          }, 800);
+            if (result.user.isAdmin) {
+              window.location.href = "../pages/admin-dashboardBooking.html";
+            } else {
+              window.location.href = "../index.html";
+            }
+          }, 1000);
+          
         } catch (err) {
-          errorMsg.textContent = "Something went wrong. Please try again.";
-          errorMsg.classList.add("show");
+          console.error("Login error:", err);
+          errorMsg.textContent = `❌ ${err.message || "Invalid Student ID or Password"}`;
+          errorMsg.style.display = "block";
+          showToast("Login failed. Please check your credentials.", "error");
+          
+          // Re-enable button
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("loading");
+          submitBtn.textContent = "Sign In";
         }
+      });
+      
+      // Add input event listeners to clear error when user types
+      studentIdInput.addEventListener("input", () => {
+        errorMsg.style.display = "none";
+      });
+      
+      passwordInput.addEventListener("input", () => {
+        errorMsg.style.display = "none";
       });
     });
   </script>

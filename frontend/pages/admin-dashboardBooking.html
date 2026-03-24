@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Library Booking System</title>
+  <link rel="stylesheet" href="../css/admin-dashboardBooking.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1>📊 Library Booking Admin Dashboard</h1>
+      <p>Real-time seat booking management system</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card total-seats">
+        <div class="stat-icon">🪑</div>
+        <div class="stat-info">
+          <h3>Total Seats</h3>
+          <p id="totalSeats">32</p>
+        </div>
+      </div>
+
+      <div class="stat-card available-seats">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <h3>Available Now</h3>
+          <p id="availableSeats">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card booked-seats">
+        <div class="stat-icon">📚</div>
+        <div class="stat-info">
+          <h3>Booked Seats</h3>
+          <p id="bookedSeats">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card today-bookings">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+          <h3>Today's Bookings</h3>
+          <p id="todayBookings">0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button onclick="window.location.href='bookingseats.html'" class="btn-primary">
+        🪑 Book New Seat
+      </button>
+      <button onclick="refreshData()" class="btn-secondary">
+        🔄 Refresh Data
+      </button>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="bookings-table-container">
+      <div class="table-header">
+        <h2>All Bookings</h2>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search by Student ID or Name..." onkeyup="searchBookings()">
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Seat(s)</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+             </tr>
+          </thead>
+          <tbody id="bookingsTableBody">
+            <tr>
+              <td colspan="6" class="loading-text">Loading bookings...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="dashboard-footer">
+      <p>Last updated: <span id="lastUpdated">-</span></p>
+      <button onclick="window.location.href='bookingseats.html'" class="footer-link">
+        ← Back to Booking Page
+      </button>
+    </div>
+  </div>
+
+  <script src="../js/admin-dashboardBooking.js"></script>
+</body>
+</html>

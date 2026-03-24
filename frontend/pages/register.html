@@ -17,6 +17,28 @@
     .status-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-weight: bold; }
     .status-icon.valid { color: var(--success); content: "✓"; }
     .status-icon.invalid { color: var(--danger); content: "✕"; }
+    
+    /* Toast styles */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .toast {
+      background: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-top: 10px;
+      animation: slideIn 0.3s ease;
+    }
+    .toast.success { background: #10B981; }
+    .toast.error { background: #EF4444; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -82,8 +104,14 @@
   <script src="../js/api.js"></script>
   <script src="../js/auth.js"></script>
   <script>
+    // Define API URL
+    const API_BASE_URL = 'http://localhost:5000/api';
+    
     document.addEventListener("DOMContentLoaded", () => {
-      updateNavbar("../");
+      // Update navbar function (make sure this exists in your code)
+      if (typeof updateNavbar === 'function') {
+        updateNavbar("../");
+      }
 
       const studentIdInput = document.getElementById("studentId");
       const nameInput = document.getElementById("name");
@@ -94,6 +122,16 @@
       let isNameValid = false;
       let isPasswordValid = false;
       let checkIdTimeout = null;
+
+      // Toast function
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
 
       // Update validation UI helper
       function setValState(elementId, isValid, pristine = true) {
@@ -135,11 +173,13 @@
         setValState("val-id-unique", false, true);
 
         if (formatValid) {
-          // Debounce unique check
+          // Debounce unique check - FIXED API URL
           clearTimeout(checkIdTimeout);
           checkIdTimeout = setTimeout(async () => {
             try {
-              const result = await fetch('/api/auth/check-id/' + val).then(r => r.json());
+              // FIXED: Added full URL
+              const response = await fetch(`${API_BASE_URL}/auth/check-id/${val}`);
+              const result = await response.json();
               const uniqueValid = !result.exists;
               setValState("val-id-unique", uniqueValid, false);
               
@@ -150,10 +190,15 @@
               } else {
                 icon.textContent = "✕";
                 icon.className = "status-icon invalid";
+                isIdValid = false;
               }
               updateSubmitButton();
             } catch (err) {
-              console.error("Failed to check ID");
+              console.error("Failed to check ID:", err);
+              icon.textContent = "⚠️";
+              icon.className = "status-icon invalid";
+              setValState("val-id-unique", false, false);
+              updateSubmitButton();
             }
           }, 400);
         } else {
@@ -165,14 +210,17 @@
       nameInput.addEventListener("input", () => {
         const val = nameInput.value.trim();
         const icon = document.getElementById("nameIcon");
-        isNameValid = val.length > 0;
+        isNameValid = val.length > 0 && val.length >= 2 && val.length <= 50;
         
         if (val.length === 0) {
           icon.textContent = "";
           icon.className = "status-icon";
-        } else {
+        } else if (isNameValid) {
           icon.textContent = "✓";
           icon.className = "status-icon valid";
+        } else {
+          icon.textContent = "✕";
+          icon.className = "status-icon invalid";
         }
         updateSubmitButton();
       });
@@ -228,20 +276,32 @@
         submitBtn.textContent = "Creating Account...";
 
         try {
-          const result = await apiSignUp({ studentId, name, password });
-          if (result.error) {
-            errorMsg.textContent = result.error;
+          // FIXED: Use full URL for signup
+          const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ studentId, name, password })
+          });
+          
+          const result = await response.json();
+          
+          if (!response.ok || result.error) {
+            errorMsg.textContent = result.error || "Registration failed";
             errorMsg.classList.add("show");
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
             return;
           }
-          showToast("Account created! Redirecting to Sign In...", "success");
+          
+          showToast("✅ Account created! Redirecting to Sign In...", "success");
           setTimeout(() => {
             window.location.href = "login.html";
           }, 1200);
         } catch (err) {
-          errorMsg.textContent = "Something went wrong. Please try again.";
+          console.error("Registration error:", err);
+          errorMsg.textContent = "Cannot connect to server. Make sure server is running on http://localhost:5000";
           errorMsg.classList.add("show");
           submitBtn.disabled = false;
           submitBtn.textContent = "Sign Up";

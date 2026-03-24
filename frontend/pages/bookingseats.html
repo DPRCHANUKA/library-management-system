@@ -11,6 +11,146 @@
 <body>
 
   <h1 class="title-3d"> Library Floor</h1>
+<!-- 3D LIBRARY MAP VIEW - ADD THIS ENTIRE SECTION HERE -->
+<!-- LIBRARY FLOOR MAP PLAN - ADD THIS ENTIRE SECTION -->
+  <div class="floor-map-plan">
+    <div class="map-header">
+      <h2>📋 LIBRARY FLOOR PLAN</h2>
+      <p>2nd Floor | Study Area | 32 Seats Available</p>
+    </div>
+    
+    <div class="map-layout">
+      <div class="library-grid">
+        <!-- Left Side Tables -->
+        <div class="left-section">
+          <div class="map-table-card">
+            <div class="table-number">TABLE 01</div>
+            <div class="table-title">📖 STUDY TABLE A</div>
+            <div class="seats-grid" id="mapSeatsA">
+              <div class="map-seat" data-seat="A1">A1</div>
+              <div class="map-seat" data-seat="A2">A2</div>
+              <div class="map-seat" data-seat="A3">A3</div>
+              <div class="map-seat" data-seat="A4">A4</div>
+              <div class="map-seat" data-seat="A5">A5</div>
+              <div class="map-seat" data-seat="A6">A6</div>
+              <div class="map-seat" data-seat="A7">A7</div>
+              <div class="map-seat" data-seat="A8">A8</div>
+            </div>
+          </div>
+          
+          <div class="map-table-card">
+            <div class="table-number">TABLE 02</div>
+            <div class="table-title">📖 STUDY TABLE B</div>
+            <div class="seats-grid" id="mapSeatsB">
+              <div class="map-seat" data-seat="B1">B1</div>
+              <div class="map-seat" data-seat="B2">B2</div>
+              <div class="map-seat" data-seat="B3">B3</div>
+              <div class="map-seat" data-seat="B4">B4</div>
+              <div class="map-seat" data-seat="B5">B5</div>
+              <div class="map-seat" data-seat="B6">B6</div>
+              <div class="map-seat" data-seat="B7">B7</div>
+              <div class="map-seat" data-seat="B8">B8</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Center Aisle -->
+        <div class="center-aisle">
+          <div class="aisle-icon">🚶</div>
+          <div class="aisle-text">MAIN AISLE</div>
+          <div class="aisle-icon">🚶</div>
+        </div>
+        
+        <!-- Right Side Tables -->
+        <div class="right-section">
+          <div class="map-table-card">
+            <div class="table-number">TABLE 03</div>
+            <div class="table-title">📖 STUDY TABLE C</div>
+            <div class="seats-grid" id="mapSeatsC">
+              <div class="map-seat" data-seat="C1">C1</div>
+              <div class="map-seat" data-seat="C2">C2</div>
+              <div class="map-seat" data-seat="C3">C3</div>
+              <div class="map-seat" data-seat="C4">C4</div>
+              <div class="map-seat" data-seat="C5">C5</div>
+              <div class="map-seat" data-seat="C6">C6</div>
+              <div class="map-seat" data-seat="C7">C7</div>
+              <div class="map-seat" data-seat="C8">C8</div>
+            </div>
+          </div>
+          
+          <div class="map-table-card">
+            <div class="table-number">TABLE 04</div>
+            <div class="table-title">📖 STUDY TABLE D</div>
+            <div class="seats-grid" id="mapSeatsD">
+              <div class="map-seat" data-seat="D1">D1</div>
+              <div class="map-seat" data-seat="D2">D2</div>
+              <div class="map-seat" data-seat="D3">D3</div>
+              <div class="map-seat" data-seat="D4">D4</div>
+              <div class="map-seat" data-seat="D5">D5</div>
+              <div class="map-seat" data-seat="D6">D6</div>
+              <div class="map-seat" data-seat="D7">D7</div>
+              <div class="map-seat" data-seat="D8">D8</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Entrance Area -->
+      <div class="entrance-area">
+        <div class="entrance-door">
+          <span>🚪</span>
+          <span>MAIN ENTRANCE</span>
+        </div>
+        <div class="info-board">
+          <div class="info-item">
+            <div class="info-icon">🪑</div>
+            <div class="info-text"><strong>32</strong> Total Seats</div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">✅</div>
+            <div class="info-text"><strong id="mapAvailableCount">32</strong> Available</div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">📚</div>
+            <div class="info-text"><strong id="mapBookedCount">0</strong> Booked</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Map Legend -->
+    <div class="map-legend-bottom">
+      <div class="legend-item">
+        <div class="legend-color available"></div>
+        <span>Available Seat</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color booked"></div>
+        <span>Booked Seat</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color table"></div>
+        <span>Study Table</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color aisle"></div>
+        <span>Walkway</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color entrance"></div>
+        <span>Entrance</span>
+      </div>
+    </div>
+  </div>
+
+ <!-- ADD ADMIN DASHBOARD BUTTON HERE - RIGHT AFTER TITLE -->
+  <div style="text-align: right; max-width: 800px; margin: 0 auto 20px auto; padding: 0 20px;">
+    <a href="admin-dashboardBooking.html" 
+       style="background: #3B82F6; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s;"
+       onmouseover="this.style.transform='translateY(-2px)'"
+       onmouseout="this.style.transform='translateY(0)'">
+      📊 Admin Dashboard
+    </a>
 
   <div class="floor">
     <div class="library">
@@ -20,11 +160,11 @@
         <div class="seats">
           <button class="seat available" data-seat="A1">A1</button>
           <button class="seat available" data-seat="A2">A2</button>
-          <button class="seat booked" data-seat="A3">A3</button>
+          <button class="seat available" data-seat="A3">A3</button>
           <button class="seat available" data-seat="A4">A4</button>
             <button class="seat available" data-seat="A5">A5</button>
           <button class="seat available" data-seat="A6">A6</button>
-          <button class="seat booked" data-seat="A7">A7</button>
+          <button class="seat available" data-seat="A7">A7</button>
           <button class="seat available" data-seat="A8">A8</button>
         </div>
       </div>
@@ -33,11 +173,11 @@
         <h3>Table 2</h3>
         <div class="seats">
           <button class="seat available" data-seat="B1">B1</button>
-          <button class="seat booked" data-seat="B2">B2</button>
+          <button class="seat available" data-seat="B2">B2</button>
           <button class="seat available" data-seat="B3">B3</button>
           <button class="seat available" data-seat="B4">B4</button>
            <button class="seat available" data-seat="B5">B5</button>
-          <button class="seat booked" data-seat="B6">B6</button>
+          <button class="seat available" data-seat="B6">B6</button>
           <button class="seat available" data-seat="B7">B7</button>
           <button class="seat available" data-seat="B8">B8</button>
         </div>
@@ -48,11 +188,11 @@
         <div class="seats">
           <button class="seat available" data-seat="C1">C1</button>
           <button class="seat available" data-seat="C2">C2</button>
-          <button class="seat booked" data-seat="C3">C3</button>
+          <button class="seat available" data-seat="C3">C3</button>
           <button class="seat available" data-seat="C4">C4</button>
             <button class="seat available" data-seat="C5">C5</button>
           <button class="seat available" data-seat="C6">C6</button>
-          <button class="seat booked" data-seat="C7">C7</button>
+          <button class="seat available" data-seat="C7">C7</button>
           <button class="seat available" data-seat="C8">C8</button>
         </div>
       </div>
@@ -61,11 +201,11 @@
         <h3>Table 4</h3>
         <div class="seats">
           <button class="seat available" data-seat="D1">D1</button>
-          <button class="seat booked" data-seat="D2">D2</button>
+          <button class="seat available" data-seat="D2">D2</button>
           <button class="seat available" data-seat="D3">D3</button>
           <button class="seat available" data-seat="D4">D4</button>
              <button class="seat available" data-seat="D5">D5</button>
-          <button class="seat booked" data-seat="D6">D6</button>
+          <button class="seat available" data-seat="D6">D6</button>
           <button class="seat available" data-seat="D7">D7</button>
           <button class="seat available" data-seat="D8">D8</button>
         </div>
@@ -91,88 +231,412 @@
     </button>
   </div>
 
-  <form class="space-y-4">
+  <form class="space-y-4" id="bookingForm">
   <!-- Name -->
   <div>
-    <label class="block text-sm font-medium mb-1">Name</label>
+    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
+      FULL NAME
+    </label>
     <input type="text" id="nameInput"
       class="w-full border rounded-lg p-2"
-      placeholder="eg:- John Doe" required>
+      placeholder="e.g., John Doe" required>
+    <div id="nameError" class="error-message"></div>
   </div>
 
   <!-- Student ID -->
   <div>
-    <label class="block text-sm font-medium mb-1">Student ID /Lecture ID</label>
+    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
+      STUDENT ID / LECTURER ID
+    </label>
     <input type="text" id="studentIdInput"
       class="w-full border rounded-lg p-2"
-      placeholder="eg:- IT2345/L1234" required>
+      placeholder="e.g., IT2345 or L1234" required>
+    <div id="studentIdError" class="error-message"></div>
   </div>
+  
   <!-- Seat -->
-    <div>
-      <label class="block text-sm font-medium mb-1">Seat</label>
-      <input type="text" id="seatInput" readonly
-        class="w-full border rounded-lg p-2">
-    </div>
+  <div>
+    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
+      SELECTED SEAT(S)
+    </label>
+    <input type="text" id="seatInput" readonly
+      class="w-full border rounded-lg p-2" placeholder="Click on seats to select">
+    <div id="seatError" class="error-message"></div>
+  </div>
+  
   <!-- Date -->
   <div>
-    <label class="block text-sm font-medium mb-1">Date</label>
+    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
+      BOOKING DATE
+    </label>
     <input type="text" id="dateInput" readonly
       class="w-full border rounded-lg p-2">
+    <div id="dateError" class="error-message"></div>
   </div>
 
-<!-- From Time -->
-<div>
-  <label class="block text-sm font-medium mb-1">From Time</label>
-  <input type="time" id="fromTime"
-    class="w-full border rounded-lg p-2" required>
-</div>
+  <!-- From Time -->
+  <div>
+    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
+      START TIME
+    </label>
+    <input type="time" id="fromTime"
+      class="w-full border rounded-lg p-2" required>
+    <div id="fromTimeError" class="error-message"></div>
+  </div>
 
-<!-- To Time -->
-<div>
-  <label class="block text-sm font-medium mb-1">To Time</label>
-  <input type="time" id="toTime"
-    class="w-full border rounded-lg p-2" required>
-</div>
-    <button type="submit"
-      class="w-full bg-blue-600 text-white py-2 rounded-lg">
-      Confirm Booking
-    </button>
-  </form>
+  <!-- To Time -->
+  <div>
+    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
+      END TIME
+    </label>
+    <input type="time" id="toTime"
+      class="w-full border rounded-lg p-2" required>
+    <div id="toTimeError" class="error-message"></div>
+  </div>
+  
+  <button type="submit"
+    class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold uppercase tracking-wide">
+    CONFIRM BOOKING
+  </button>
+</form>
 
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  const seats = document.querySelectorAll(".seat.available");
+let selectedSeats = [];
+let currentTable = null;
 
+  const seats = document.querySelectorAll(".seat");
   const drawer = document.getElementById("drawer-form");
   const seatInput = document.getElementById("seatInput");
   const drawerTitle = document.getElementById("drawerTitle");
   const closeBtn = document.getElementById("closeDrawer");
   const dateInput = document.getElementById("dateInput");
+  const form = document.getElementById("bookingForm");
 
+  // Set today's date
+  const today = new Date();
+  const formattedDate = today.toISOString().split('T')[0];
+  dateInput.value = formattedDate;
+
+  // ========== VALIDATION FUNCTIONS ==========
+  
+  // Clear all error messages
+  function clearErrors() {
+    document.querySelectorAll('.error-message').forEach(el => {
+      el.style.display = 'none';
+      el.textContent = '';
+    });
+    document.querySelectorAll('input').forEach(el => {
+      el.classList.remove('input-error');
+    });
+  }
+
+  // Show error for specific field
+  function showError(fieldId, message) {
+    const errorDiv = document.getElementById(fieldId);
+    if (errorDiv) {
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+    const inputField = document.getElementById(fieldId.replace('Error', 'Input'));
+    if (inputField) {
+      inputField.classList.add('input-error');
+    }
+  }
+
+  // Validate Name (letters and spaces only)
+  function validateName(name) {
+    if (!name) {
+      showError('nameError', '❌ Name is required');
+      return false;
+    }
+    if (name.length < 2) {
+      showError('nameError', '❌ Name must be at least 2 characters');
+      return false;
+    }
+    if (name.length > 50) {
+      showError('nameError', '❌ Name must be less than 50 characters');
+      return false;
+    }
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(name)) {
+      showError('nameError', '❌ Name should contain only letters and spaces');
+      return false;
+    }
+    return true;
+  }
+
+  // Validate Student ID
+  function validateStudentId(studentId) {
+    if (!studentId) {
+      showError('studentIdError', '❌ Student/Lecturer ID is required');
+      return false;
+    }
+    // Pattern: IT followed by 4 digits OR L followed by 4 digits
+    const idRegex = /^(IT|L)\d{4}$/i;
+    if (!idRegex.test(studentId)) {
+      showError('studentIdError', '❌ Format: IT1234 or L1234 (IT/L + 4 digits)');
+      return false;
+    }
+    return true;
+  }
+
+  // Validate Seats
+  function validateSeats() {
+    if (selectedSeats.length === 0) {
+      showError('seatError', '❌ Please select at least one seat');
+      return false;
+    }
+    return true;
+  }
+
+  // Validate Date
+  function validateDate(date) {
+    if (!date) {
+      showError('dateError', '❌ Date is required');
+      return false;
+    }
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+      showError('dateError', '❌ Cannot book past dates');
+      return false;
+    }
+    return true;
+  }
+
+  // Validate Time
+  function validateTime(fromTime, toTime) {
+    if (!fromTime) {
+      showError('fromTimeError', '❌ Start time is required');
+      return false;
+    }
+    if (!toTime) {
+      showError('toTimeError', '❌ End time is required');
+      return false;
+    }
+    
+    if (fromTime >= toTime) {
+      showError('toTimeError', '❌ End time must be after start time');
+      return false;
+    }
+    
+    // Check minimum booking duration (30 minutes)
+    const fromMinutes = parseInt(fromTime.split(':')[0]) * 60 + parseInt(fromTime.split(':')[1]);
+    const toMinutes = parseInt(toTime.split(':')[0]) * 60 + parseInt(toTime.split(':')[1]);
+    const duration = toMinutes - fromMinutes;
+    
+    if (duration < 30) {
+      showError('toTimeError', '❌ Minimum booking duration is 30 minutes');
+      return false;
+    }
+    
+    if (duration > 240) {
+      showError('toTimeError', '❌ Maximum booking duration is 4 hours');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Validate all fields before submit
+  function validateForm() {
+    clearErrors();
+    
+    const name = document.getElementById("nameInput").value.trim();
+    const studentId = document.getElementById("studentIdInput").value.trim();
+    const date = dateInput.value;
+    const fromTime = document.getElementById("fromTime").value;
+    const toTime = document.getElementById("toTime").value;
+    
+    const isNameValid = validateName(name);
+    const isIdValid = validateStudentId(studentId);
+    const isSeatValid = validateSeats();
+    const isDateValid = validateDate(date);
+    const isTimeValid = validateTime(fromTime, toTime);
+    
+    return isNameValid && isIdValid && isSeatValid && isDateValid && isTimeValid;
+  }
+
+  // ========== SEAT SELECTION LOGIC ==========
   seats.forEach(seat => {
     seat.addEventListener("click", () => {
+      if (seat.classList.contains("booked")) return;
+      
+      // Clear seat error when user selects a seat
+      const seatError = document.getElementById('seatError');
+      if (seatError) {
+        seatError.style.display = 'none';
+      }
 
       const seatNumber = seat.getAttribute("data-seat");
+      const table = seatNumber.charAt(0);
 
-      // Set seat
-      seatInput.value = seatNumber;
-      drawerTitle.innerText = "Booking for Seat " + seatNumber;
+      if (selectedSeats.length === 0) {
+        currentTable = table;
+      }
 
-      // Set current date
-      const now = new Date();
-      const date = now.toLocaleDateString();
-      dateInput.value = date;
+      if (table !== currentTable) {
+        alert("❌ Select seats from same table only!");
+        return;
+      }
 
-      // Open drawer
+      if (selectedSeats.length >= 2 && !selectedSeats.includes(seatNumber)) {
+        alert("❌ You can only book 2 seats maximum!");
+        return;
+      }
+
+      if (selectedSeats.includes(seatNumber)) {
+        selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+        seat.classList.remove("selected");
+      } else {
+        selectedSeats.push(seatNumber);
+        seat.classList.add("selected");
+      }
+
+      seatInput.value = selectedSeats.join(", ");
+      drawerTitle.innerText = "Booking for " + (seatInput.value || "Select Seats");
+      
       drawer.classList.remove("-translate-x-full");
     });
   });
 
-  // Close drawer
+  // ========== FORM SUBMIT WITH VALIDATION ==========
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Run all validations
+    if (!validateForm()) {
+      // Scroll to first error
+      const firstError = document.querySelector('.error-message[style*="display: block"]');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const name = document.getElementById("nameInput").value.trim();
+    const studentId = document.getElementById("studentIdInput").value.trim();
+    const date = dateInput.value;
+    const fromTime = document.getElementById("fromTime").value;
+    const toTime = document.getElementById("toTime").value;
+
+    // Disable submit button
+    const submitBtn = document.querySelector("button[type='submit']");
+    const originalText = submitBtn.innerText;
+    submitBtn.disabled = true;
+    submitBtn.innerText = "⏳ PROCESSING...";
+
+    try {
+      const res = await fetch("http://localhost:5000/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          studentId,
+          seat: selectedSeats,
+          date,
+          fromTime,
+          toTime
+        })
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      if (!res.ok) {
+        alert(`❌ ${data.message || "Booking failed"}`);
+        return;
+      }
+
+      alert(`✅ Booking Confirmed!\n\nSeat(s): ${selectedSeats.join(", ")}\nDate: ${date}\nTime: ${fromTime} - ${toTime}\n\nThank you, ${name}!`);
+
+      // Update UI - mark seats as booked
+      selectedSeats.forEach(s => {
+        document.querySelectorAll(".seat").forEach(btn => {
+          if (btn.getAttribute("data-seat") === s) {
+            btn.classList.remove("available", "selected");
+            btn.classList.add("booked");
+          }
+        });
+      });
+
+      // Reset form
+      selectedSeats = [];
+      currentTable = null;
+      seatInput.value = "";
+      document.getElementById("nameInput").value = "";
+      document.getElementById("studentIdInput").value = "";
+      document.getElementById("fromTime").value = "";
+      document.getElementById("toTime").value = "";
+      
+      // Clear any errors
+      clearErrors();
+      
+      drawer.classList.add("-translate-x-full");
+
+    } catch (err) {
+      console.log(err);
+      alert("❌ Error connecting to server. Please make sure server is running.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = originalText;
+    }
+  });
+
+  // ========== REAL-TIME VALIDATION (as user types) ==========
+  
+  // Name validation on input
+  document.getElementById("nameInput").addEventListener("input", (e) => {
+    const name = e.target.value.trim();
+    if (name) {
+      validateName(name);
+    } else {
+      const errorDiv = document.getElementById('nameError');
+      if (errorDiv) errorDiv.style.display = 'none';
+      e.target.classList.remove('input-error');
+    }
+  });
+
+  // Student ID validation on input
+  document.getElementById("studentIdInput").addEventListener("input", (e) => {
+    const studentId = e.target.value.trim();
+    if (studentId) {
+      validateStudentId(studentId);
+    } else {
+      const errorDiv = document.getElementById('studentIdError');
+      if (errorDiv) errorDiv.style.display = 'none';
+      e.target.classList.remove('input-error');
+    }
+  });
+
+  // Time validation on change
+  document.getElementById("fromTime").addEventListener("change", () => {
+    const fromTime = document.getElementById("fromTime").value;
+    const toTime = document.getElementById("toTime").value;
+    if (fromTime && toTime) {
+      validateTime(fromTime, toTime);
+    }
+  });
+
+  document.getElementById("toTime").addEventListener("change", () => {
+    const fromTime = document.getElementById("fromTime").value;
+    const toTime = document.getElementById("toTime").value;
+    if (fromTime && toTime) {
+      validateTime(fromTime, toTime);
+    }
+  });
+
+  // CLOSE DRAWER
   closeBtn.addEventListener("click", () => {
     drawer.classList.add("-translate-x-full");
+    clearErrors();
   });
 
 });

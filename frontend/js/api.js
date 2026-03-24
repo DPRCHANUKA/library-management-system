@@ -1,6 +1,6 @@
-<<<<<<< HEAD
 const BASE_URL = "http://localhost:5000";
 
+// ====== BOOKING API ======
 async function getBookings() {
   const res = await fetch(`${BASE_URL}/api/bookings`);
   return res.json();
@@ -14,9 +14,8 @@ async function createBooking(data) {
     },
     body: JSON.stringify(data)
   });
-
-=======
-const BASE_URL = window.location.origin;
+  return res.json();
+}
 
 // ====== AUTH API ======
 async function apiSignUp(data) {
@@ -123,6 +122,5 @@ async function apiBookFromWishlist(bookId) {
       "Authorization": `Bearer ${localStorage.getItem("token")}`
     }
   });
->>>>>>> kalana-branch
   return res.json();
 }
