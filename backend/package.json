@@ -1,32 +1,17 @@
 {
   "name": "backend",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "description": "",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-=======
   "description": "Library Management System Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
->>>>>>> kalana-branch
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-<<<<<<< HEAD
-    "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "mongodb": "^7.1.0",
-    "mongoose": "^9.3.1"
-=======
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
@@ -35,6 +20,5 @@
     "mongodb": "^7.1.0",
     "mongoose": "^9.3.1",
     "multer": "^1.4.5-lts.1"
->>>>>>> kalana-branch
   }
 }

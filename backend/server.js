@@ -1,36 +1,3 @@
-<<<<<<< HEAD
-require("dotenv").config(); 
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-
-const app = express();
-
-// middleware
-app.use(cors());
-app.use(express.json());
-
-
-const bookingRoutes = require("./routes/bookingRoutes");
-app.use("/api/bookings", bookingRoutes);
-
-// test route
-app.get("/", (req, res) => {
-  res.send("Server is running 🚀");
-});
-
-
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected ✅"))
-  .catch(err => console.log(err));
-
-
-
-
-// start server
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-=======
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -48,17 +15,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Routes
+const bookingRoutes = require("./routes/bookingRoutes");
 const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
 
+app.use("/api/bookings", bookingRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 
-// Serve pages - catch-all for SPA-like navigation
+// Test route
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
+// Optional SPA-style route
 app.get("/pages/:page", (req, res) => {
   res.sendFile(path.join(__dirname, `../frontend/pages/${req.params.page}`));
 });
@@ -95,5 +65,4 @@ mongoose.connect(process.env.MONGO_URI)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} 🚀`);
->>>>>>> kalana-branch
 });
