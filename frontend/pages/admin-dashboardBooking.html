@@ -5,8 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - Library Booking System</title>
   <link rel="stylesheet" href="../css/admin-dashboardBooking.css">
+  <link rel="stylesheet" href="../css/navbar.css">
 </head>
 <body>
+    <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
   <div class="dashboard-container">
     <!-- Header -->
     <div class="dashboard-header">
@@ -99,5 +106,50 @@
   </div>
 
   <script src="../js/admin-dashboardBooking.js"></script>
+
+    <!-- Auth.js for authentication and navbar -->
+  <script src="../js/auth.js"></script>
+  
+  <!--  Authentication check for admin access -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Update navbar
+      if (typeof updateNavbar === 'function') {
+        updateNavbar("../");
+      }
+      
+      // Check if user is admin - this will redirect if not admin
+      if (typeof requireAdmin === 'function') {
+        if (!requireAdmin()) {
+          return;
+        }
+      } else {
+        // Fallback check if requireAdmin doesn't exist
+        const user = getUser ? getUser() : null;
+        if (!user || !user.isAdmin) {
+          alert("Access Denied. Admin privileges required.");
+          window.location.href = "../index.html";
+          return;
+        }
+      }
+      
+      // Display admin welcome message
+      const user = getUser ? getUser() : null;
+      if (user) {
+        console.log("Admin logged in:", user.name);
+        
+        // Optional: Add admin name to header
+        const dashboardHeader = document.querySelector('.dashboard-header h1');
+        if (dashboardHeader) {
+          // You can add admin name here if you want
+        }
+      }
+      
+      // Load dashboard data only if admin
+      if (typeof loadDashboardData === 'function') {
+        loadDashboardData();
+      }
+    });
+  </script>
 </body>
 </html>
