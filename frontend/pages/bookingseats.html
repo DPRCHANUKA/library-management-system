@@ -378,7 +378,7 @@ let currentTable = null;
     // Pattern: IT followed by 4 digits OR L followed by 4 digits
     const idRegex = /^[A-Za-z0-9]{10}$/;
     if (!idRegex.test(studentId)) {
-      showError('studentIdError', '❌ Format: IT1234 or L1234 (IT/L + 4 digits)');
+     showError('studentIdError', '❌ Student ID or Lecturer ID must be exactly 10 alphanumeric characters');
       return false;
     }
     return true;
@@ -633,13 +633,26 @@ let currentTable = null;
       validateTime(fromTime, toTime);
     }
   });
+  // Clear time error messages when user types
+  document.getElementById("fromTime").addEventListener("input", () => {
+    const errorDiv = document.getElementById('toTimeError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    document.getElementById("fromTime").classList.remove('input-error');
+    document.getElementById("toTime").classList.remove('input-error');
+  });
+
+  document.getElementById("toTime").addEventListener("input", () => {
+    const errorDiv = document.getElementById('toTimeError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    document.getElementById("fromTime").classList.remove('input-error');
+    document.getElementById("toTime").classList.remove('input-error');
+  });
 
   // CLOSE DRAWER
   closeBtn.addEventListener("click", () => {
     drawer.classList.add("-translate-x-full");
     clearErrors();
   });
-
   // UPDATE MAP SEATS FUNCTION according to actual seats(live floor)
   function updateMapSeats() {
     const actualSeats = document.querySelectorAll(".seat");
