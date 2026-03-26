@@ -508,3 +508,16 @@ h1 {
   }
 }
 
+/* Fix drawer close button - ADD THIS AT THE END */
+#drawer-form {
+  z-index: 9999 !important;
+}
+
+
+/* Make drawer header stay on top */
+#drawer-form .flex.items-center.justify-between {
+  position: relative;
+  z-index: 10001;
+}
+
+

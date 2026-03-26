@@ -11,13 +11,17 @@ function getUser() {
 
 function isAdmin() {
   const user = getUser();
+  // TEMPORARY: Make ALL logged-in users admin for presentation
+  if (isLoggedIn()) {
+    return true;
+  }
   return user && user.isAdmin === true;
 }
 
 function signOut(prefix = "") {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = prefix + (prefix ? "index.html" : "/");
+  window.location.href = "" + (prefix ? prefix + "index.html" : "/");
 }
 
 function updateNavbar(prefix = "") {
@@ -29,13 +33,16 @@ function updateNavbar(prefix = "") {
 
   if (isLoggedIn()) {
     let dashboardLink = "";
+    let adminLinks = "";
     if (isAdmin()) {
       dashboardLink = `<a href="${pagesPrefix}dashboard.html">Dashboard</a>`;
+      adminLinks = `<a href="${pagesPrefix}admin-dashboardBooking.html">📊 Admin Dashboard</a>`;
     }
 
     navLinks.innerHTML = `
       <a href="${homeLink}">Home</a>
       <a href="${pagesPrefix}discover.html">Discover Books</a>
+      <a href="${pagesPrefix}bookingseats.html">🪑 Book a Seat</a>
       ${dashboardLink}
       <a href="#" id="signOutLink" class="nav-btn-outline">Sign Out</a>
     `;

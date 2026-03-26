@@ -5,14 +5,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../css/bookingseats.css">
+  <link rel="stylesheet" href="../css/navbar.css">
   <title>3D Library Floor UI</title>
 </head>
 
 <body>
-
+<nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
   <h1 class="title-3d"> Library Floor</h1>
-<!-- 3D LIBRARY MAP VIEW - ADD THIS ENTIRE SECTION HERE -->
-<!-- LIBRARY FLOOR MAP PLAN - ADD THIS ENTIRE SECTION -->
+<!-- 3D LIBRARY MAP VIEW - ADD -->
+<!-- LIBRARY FLOOR MAP PLAN  -->
   <div class="floor-map-plan">
     <div class="map-header">
       <h2>📋 LIBRARY FLOOR PLAN</h2>
@@ -143,7 +147,7 @@
     </div>
   </div>
 
- <!-- ADD ADMIN DASHBOARD BUTTON HERE - RIGHT AFTER TITLE -->
+ <!-- ADD ADMIN DASHBOARD BUTTON  -->
   <div style="text-align: right; max-width: 800px; margin: 0 auto 20px auto; padding: 0 20px;">
     <a href="admin-dashboardBooking.html" 
        style="background: #3B82F6; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s;"
@@ -279,8 +283,7 @@
     <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
       START TIME
     </label>
-    <input type="time" id="fromTime"
-      class="w-full border rounded-lg p-2" required>
+   <input type="time" id="fromTime" min="08:00" max="18:00" class="w-full border rounded-lg p-2" required>
     <div id="fromTimeError" class="error-message"></div>
   </div>
 
@@ -289,8 +292,7 @@
     <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
       END TIME
     </label>
-    <input type="time" id="toTime"
-      class="w-full border rounded-lg p-2" required>
+<input type="time" id="toTime" min="08:00" max="18:00" class="w-full border rounded-lg p-2" required>
     <div id="toTimeError" class="error-message"></div>
   </div>
   
@@ -303,7 +305,6 @@
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
 let selectedSeats = [];
 let currentTable = null;
 
@@ -375,9 +376,9 @@ let currentTable = null;
       return false;
     }
     // Pattern: IT followed by 4 digits OR L followed by 4 digits
-    const idRegex = /^(IT|L)\d{4}$/i;
+    const idRegex = /^[A-Za-z0-9]{10}$/;
     if (!idRegex.test(studentId)) {
-      showError('studentIdError', '❌ Format: IT1234 or L1234 (IT/L + 4 digits)');
+     showError('studentIdError', '❌ Student ID or Lecturer ID must be exactly 10 alphanumeric characters');
       return false;
     }
     return true;
@@ -632,14 +633,128 @@ let currentTable = null;
       validateTime(fromTime, toTime);
     }
   });
+  // Clear time error messages when user types
+  document.getElementById("fromTime").addEventListener("input", () => {
+    const errorDiv = document.getElementById('toTimeError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    document.getElementById("fromTime").classList.remove('input-error');
+    document.getElementById("toTime").classList.remove('input-error');
+  });
+
+  document.getElementById("toTime").addEventListener("input", () => {
+    const errorDiv = document.getElementById('toTimeError');
+    if (errorDiv) errorDiv.style.display = 'none';
+    document.getElementById("fromTime").classList.remove('input-error');
+    document.getElementById("toTime").classList.remove('input-error');
+  });
 
   // CLOSE DRAWER
   closeBtn.addEventListener("click", () => {
     drawer.classList.add("-translate-x-full");
     clearErrors();
   });
+  // UPDATE MAP SEATS FUNCTION according to actual seats(live floor)
+  function updateMapSeats() {
+    const actualSeats = document.querySelectorAll(".seat");
+    const mapSeats = document.querySelectorAll(".map-seat");
+    
+    mapSeats.forEach(mapSeat => {
+      const seatNumber = mapSeat.getAttribute("data-seat");
+      const actualSeat = Array.from(actualSeats).find(
+        seat => seat.getAttribute("data-seat") === seatNumber
+      );
+      
+      if (actualSeat && actualSeat.classList.contains("booked")) {
+        mapSeat.classList.add("booked-seat");
+      } else {
+        mapSeat.classList.remove("booked-seat");
+      }
+    });
+    
+    // Update statistics
+    const totalSeats = 32;
+    const bookedSeats = document.querySelectorAll(".seat.booked").length;
+    const availableSeats = totalSeats - bookedSeats;
+    
+    const mapAvailableCount = document.getElementById("mapAvailableCount");
+    const mapBookedCount = document.getElementById("mapBookedCount");
+    
+    if (mapAvailableCount) mapAvailableCount.textContent = availableSeats;
+    if (mapBookedCount) mapBookedCount.textContent = bookedSeats;
+  }
+  
+  // Make map seats clickable
+  function makeMapSeatsClickable() {
+    const mapSeats = document.querySelectorAll(".map-seat");
+    mapSeats.forEach(mapSeat => {
+      mapSeat.addEventListener("click", () => {
+        const seatNumber = mapSeat.getAttribute("data-seat");
+        const actualSeat = Array.from(document.querySelectorAll(".seat")).find(
+          seat => seat.getAttribute("data-seat") === seatNumber
+        );
+        
+        if (actualSeat && !actualSeat.classList.contains("booked")) {
+          actualSeat.click();
+        } else if (actualSeat && actualSeat.classList.contains("booked")) {
+          alert(`❌ Seat ${seatNumber} is already booked!`);
+        }
+      });
+    });
+  }
+  
+  // Initialize
+  updateMapSeats();
+  makeMapSeatsClickable();
+  
+  // Watch for seat changes
+  const observer = new MutationObserver(() => {
+    updateMapSeats();
+  });
+  
+  document.querySelectorAll(".seat").forEach(seat => {
+    observer.observe(seat, { attributes: true, attributeFilter: ['class'] });
+  });
 
 });
 </script>
+ <!-- ==========  AUTH SCRIPT  ========== -->
+  <script src="../js/auth.js"></script>
+  <script>
+    // Initialize navbar and check authentication
+    document.addEventListener("DOMContentLoaded", () => {
+      // Update navbar
+      if (typeof updateNavbar === 'function') {
+        updateNavbar("../");
+      }
+      
+      // Check if user is logged in
+      if (!isLoggedIn()) {
+        showToast("Please login to book seats", "error");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+        return;
+      }
+      
+      // Display user info (optional)
+      const user = getUser();
+      if (user) {
+        console.log("Logged in as:", user.name);
+        // You can also update the student ID field with logged-in user's ID
+        const studentIdInput = document.getElementById("studentIdInput");
+        if (studentIdInput && user.studentId) {
+          studentIdInput.value = user.studentId;
+          studentIdInput.readOnly = true; // Make it read-only since it's from login
+        }
+        
+        // Update name field with logged-in user's name
+        const nameInput = document.getElementById("nameInput");
+        if (nameInput && user.name) {
+          nameInput.value = user.name;
+          nameInput.readOnly = true; // Make it read-only since it's from login
+        }
+      }
+    });
+  </script>
 </body>
 </html>
