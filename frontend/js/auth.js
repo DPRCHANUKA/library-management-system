@@ -11,10 +11,6 @@ function getUser() {
 
 function isAdmin() {
   const user = getUser();
-  // TEMPORARY: Make ALL logged-in users admin for presentation
-  if (isLoggedIn()) {
-    return true;
-  }
   return user && user.isAdmin === true;
 }
 

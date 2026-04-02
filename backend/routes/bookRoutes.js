@@ -92,6 +92,7 @@ router.post("/:id/book", authMiddleware, async (req, res) => {
     book.isAvailable = false;
     book.bookedBy = user._id;
     book.bookerName = user.name;
+    book.bookerId = user.studentId;
     book.bookedDate = bookedDate;
     book.returnDate = returnDate;
     await book.save();
@@ -119,6 +120,7 @@ router.post("/:id/return", authMiddleware, async (req, res) => {
     book.isAvailable = true;
     book.bookedBy = null;
     book.bookerName = null;
+    book.bookerId = null;
     book.bookedDate = null;
     book.returnDate = null;
     await book.save();
@@ -193,6 +195,7 @@ router.post("/:id/wishlist/book", authMiddleware, async (req, res) => {
     book.isAvailable = false;
     book.bookedBy = user._id;
     book.bookerName = user.name;
+    book.bookerId = user.studentId;
     book.bookedDate = bookedDate;
     book.returnDate = returnDate;
     await book.save();

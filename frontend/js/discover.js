@@ -8,28 +8,74 @@ document.addEventListener("DOMContentLoaded", () => {
   updateNavbar("../");
   loadBooks();
   setupShelfModal();
+  setupFilters();
 });
 
 let allBooks = [];
 let userShelf = null;
+
+// ====== FILTERING ======
+function setupFilters() {
+  const searchInput = document.getElementById("searchInput");
+  const genreFilter = document.getElementById("genreFilter");
+  const availabilityFilter = document.getElementById("availabilityFilter");
+
+  searchInput.addEventListener("input", applyFilters);
+  genreFilter.addEventListener("change", applyFilters);
+  availabilityFilter.addEventListener("change", applyFilters);
+}
+
+function applyFilters() {
+  const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
+  const genre = document.getElementById("genreFilter").value;
+  const availability = document.getElementById("availabilityFilter").value;
+
+  const filtered = allBooks.filter(book => {
+    // Search by name
+    const matchesSearch = !searchTerm || book.name.toLowerCase().includes(searchTerm);
+    
+    // Filter by genre
+    const matchesGenre = genre === "all" || book.genre === genre;
+    
+    // Filter by availability
+    const matchesAvailability = availability === "all" || (availability === "available" && book.isAvailable);
+
+    return matchesSearch && matchesGenre && matchesAvailability;
+  });
+
+  renderBookGrid(filtered);
+
+  // Update result count
+  const resultsEl = document.getElementById("filterResults");
+  if (resultsEl) {
+    const total = allBooks.length;
+    const shown = filtered.length;
+    if (searchTerm || genre !== "all" || availability !== "all") {
+      resultsEl.innerHTML = `<span>Showing <strong>${shown}</strong> of <strong>${total}</strong> books</span>`;
+    } else {
+      resultsEl.innerHTML = `<span><strong>${total}</strong> books available</span>`;
+    }
+  }
+}
 
 async function loadBooks() {
   try {
     const [books, shelf] = await Promise.all([apiGetBooks(), apiGetShelf()]);
     allBooks = books;
     userShelf = shelf;
-    renderBookGrid();
+    applyFilters();
   } catch (err) {
     showToast("Failed to load books", "error");
   }
 }
 
-function renderBookGrid() {
+function renderBookGrid(booksToRender) {
   const grid = document.getElementById("bookGrid");
   const user = getUser();
+  const books = booksToRender || allBooks;
 
-  if (!allBooks.length) {
-    grid.innerHTML = '<p style="color: var(--text-muted); text-align:center; grid-column: 1/-1; padding: 3rem;">No books available. Go to Dashboard to add books!</p>';
+  if (!books.length) {
+    grid.innerHTML = '<p style="color: var(--text-muted); text-align:center; grid-column: 1/-1; padding: 3rem;">No books match your filters.</p>';
     return;
   }
 
@@ -42,7 +88,7 @@ function renderBookGrid() {
     return w._id || w;
   }).map(String));
 
-  grid.innerHTML = allBooks.map(book => {
+  grid.innerHTML = books.map(book => {
     const isBookedByMe = borrowedIds.has(String(book._id));
     const isBookedByOther = !book.isAvailable && !isBookedByMe;
     const isInWishlist = wishlistIds.has(String(book._id));
