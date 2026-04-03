@@ -16,6 +16,7 @@
   </nav>
 
   <section class="hero" id="heroSection">
+    <div class="hero-bg" id="heroBg"></div>
     <div class="hero-content">
       <div class="hero-badge">✨ Your Smart Library Companion</div>
       <h1>Your Digital Library, Reimagined</h1>
@@ -50,14 +51,14 @@
         <p>Reserve your study spot in advance. Interactive floor plan lets you pick the perfect seat.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">💛</div>
-        <h3>Personal Shelf</h3>
-        <p>Keep track of borrowed books, manage your wishlist, and never miss a return date with countdown timers.</p>
+        <div class="feature-icon">🎁</div>
+        <h3>Contribute to Library</h3>
+        <p>Request a book you need OR donate a book you have. Help grow our collection.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <h3>Smart Dashboard</h3>
-        <p>Admins get a powerful dashboard to manage books, track borrowing, and monitor library activity in real time.</p>
+        <div class="feature-icon">👥</div>
+        <h3>Study Groups</h3>
+        <p>Create or join study groups, share resources, collaborate with peers, and access shared study materials.</p>
       </div>
     </div>
   </section>
@@ -143,6 +144,38 @@
   <script src="js/auth.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+
+// ===== HERO BACKGROUND SLIDER =====
+    const heroBg = document.getElementById("heroBg");
+if (heroBg) {
+  const images = [
+    "images/bg1.jpg",
+    "images/bg2.jpg",
+    "images/bg3.jpg",
+    "images/bg4.jpg"
+  ];
+  let index = 0;
+
+  function changeBackground() {
+    heroBg.style.opacity = "0";
+    setTimeout(() => {
+      heroBg.style.backgroundImage = `url(${images[index]})`;
+      setTimeout(() => {
+        heroBg.style.opacity = "1";
+      }, 50);
+      index = (index + 1) % images.length;
+    }, 800);
+  }
+
+  // Initial load
+  heroBg.style.opacity = "0";
+  heroBg.style.backgroundImage = `url(${images[0]})`;
+  setTimeout(() => {
+    heroBg.style.opacity = "1";
+    index = 1;
+  }, 100);
+  setInterval(changeBackground, 5000);
+}
       updateNavbar();
 
       document.getElementById("discoverBtn").addEventListener("click", () => {
