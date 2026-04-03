@@ -6,6 +6,7 @@ const bookSchema = new mongoose.Schema({
   image: { type: String, default: "book1.jpg" },
   bookedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   bookerName: { type: String, default: null },
+  bookerId: { type: String, default: null },
   bookedDate: { type: Date, default: null },
   returnDate: { type: Date, default: null },
   isAvailable: { type: Boolean, default: true }

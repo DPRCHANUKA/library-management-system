@@ -11,17 +11,48 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadDashboardBooks() {
   try {
     const books = await apiGetBooks();
+    updateStatCards(books);
     renderDashboardTable(books);
   } catch (err) {
     showToast("Failed to load books", "error");
   }
 }
 
+function updateStatCards(books) {
+  const total = books.length;
+  const available = books.filter(b => b.isAvailable).length;
+  const borrowed = total - available;
+
+  const totalEl = document.getElementById("totalBooksCount");
+  const availableEl = document.getElementById("availableBooksCount");
+  const borrowedEl = document.getElementById("borrowedBooksCount");
+
+  if (totalEl) animateCount(totalEl, total);
+  if (availableEl) animateCount(availableEl, available);
+  if (borrowedEl) animateCount(borrowedEl, borrowed);
+}
+
+function animateCount(el, target) {
+  const duration = 600;
+  const start = parseInt(el.textContent) || 0;
+  const increment = (target - start) / (duration / 16);
+  let current = start;
+  const timer = setInterval(() => {
+    current += increment;
+    if ((increment > 0 && current >= target) || (increment < 0 && current <= target) || increment === 0) {
+      el.textContent = target;
+      clearInterval(timer);
+    } else {
+      el.textContent = Math.round(current);
+    }
+  }, 16);
+}
+
 function renderDashboardTable(books) {
   const tbody = document.getElementById("booksTableBody");
 
   if (!books.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding: 2rem;">No books yet. Click "Add Books" to get started!</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-muted); padding: 2rem;">No books yet. Click "Add Books" to get started!</td></tr>';
     return;
   }
 
@@ -29,6 +60,10 @@ function renderDashboardTable(books) {
     const bookerDisplay = book.isAvailable
       ? '<span class="status-available">Available</span>'
       : `<span class="status-booked">${book.bookerName || 'Unknown'}</span>`;
+
+    const bookerIdDisplay = book.isAvailable
+      ? '<span style="color: var(--text-muted);">—</span>'
+      : `<span style="color: var(--secondary); font-weight: 500;">${book.bookerId || 'N/A'}</span>`;
 
     const dateDisplay = book.isAvailable
       ? '<span style="color: var(--text-muted);">Not Booked</span>'
@@ -40,6 +75,7 @@ function renderDashboardTable(books) {
         <td><strong>${book.name}</strong></td>
         <td><span class="genre-tag">${book.genre}</span></td>
         <td>${bookerDisplay}</td>
+        <td>${bookerIdDisplay}</td>
         <td>${dateDisplay}</td>
         <td>
           <button class="btn btn-danger btn-sm delete-btn" data-id="${book._id}" data-name="${book.name}">🗑 Delete</button>
