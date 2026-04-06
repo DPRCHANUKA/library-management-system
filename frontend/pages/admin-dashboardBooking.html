@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.tailwindcss.com"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - Library Booking System</title>
@@ -86,6 +87,7 @@
               <th>Date</th>
               <th>Time</th>
               <th>Status</th>
+              <th>Actions</th>
              </tr>
           </thead>
           <tbody id="bookingsTableBody">
@@ -162,5 +164,60 @@
       document.getElementById("footer").innerHTML = data;
     });
 </script>
+<!-- ADMIN EDIT DRAWER -->
+<!-- ADMIN EDIT DRAWER -->
+<div id="admin-drawer"
+  class="fixed top-0 left-0 z-50 h-screen w-96 bg-[#1E293B] shadow-lg transform -translate-x-full transition-transform duration-300">
+
+  <div class="p-4 border-b flex justify-between items-center">
+    <h2 class="text-lg font-bold">Edit Booking</h2>
+    <button onclick="closeAdminDrawer()">✖</button>
+  </div>
+
+  <form id="adminEditForm" class="p-4 space-y-4">
+
+    <input type="hidden" id="editBookingId">
+
+    <div>
+      <label>Name</label>
+      <input id="editName" class="w-full border p-2 rounded">
+      <div id="editNameError" class="error-message text-red-500 text-sm mt-1" style="display: none;"></div>
+    </div>
+
+    <div>
+      <label>Student ID</label>
+      <input id="editStudentId" class="w-full border p-2 rounded">
+      <div id="editStudentIdError" class="error-message text-red-500 text-sm mt-1" style="display: none;"></div>
+    </div>
+
+    <div>
+      <label>Seat</label>
+      <input id="editSeat" class="w-full border p-2 rounded">
+      <div id="editSeatError" class="error-message text-red-500 text-sm mt-1" style="display: none;"></div>
+    </div>
+
+    <div>
+      <label>Date</label>
+      <input id="editDate" class="w-full border p-2 rounded">
+      <div id="editDateError" class="error-message text-red-500 text-sm mt-1" style="display: none;"></div>
+    </div>
+
+    <div>
+      <label>From Time</label>
+      <input id="editFromTime" type="time" class="w-full border p-2 rounded">
+      <div id="editTimeError" class="error-message text-red-500 text-sm mt-1" style="display: none;"></div>
+    </div>
+
+    <div>
+      <label>To Time</label>
+      <input id="editToTime" type="time" class="w-full border p-2 rounded">
+      <div id="editToTimeError" class="error-message text-red-500 text-sm mt-1" style="display: none;"></div>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded">
+      Save Changes
+    </button>
+  </form>
+</div>
 </body>
 </html>
