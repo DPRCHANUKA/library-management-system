@@ -521,4 +521,28 @@ h1 {
 }
 
 
+/* Floating look Booking History Button */
+#bookingHistoryBtn {
+  position: fixed;     
+  top: 30%;           
+  right: 0;          
+  z-index: 1000;      
+  background: #3B82F6;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 18px 0 0 18px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
 
+   writing-mode: vertical-rl;  /* rotates text from top to bottom */
+  
+  
+}
+
+#bookingHistoryBtn:hover {
+  transform: translateY(-2px) scale(1.05);
+  background: #60A5FA;
+  color: #0F172A;
+}
