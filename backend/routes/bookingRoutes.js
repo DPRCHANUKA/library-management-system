@@ -49,4 +49,36 @@ router.post("/", async (req, res) => {
   }
 });
 
+// DELETE booking
+router.delete("/:id", async (req, res) => {
+  try {
+    await Booking.findByIdAndDelete(req.params.id);
+    res.json({ message: "Booking deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// UPDATE booking
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    res.json({
+      message: "Booking updated successfully",
+      booking: updatedBooking
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
 module.exports = router;
