@@ -8,14 +8,25 @@ document.addEventListener("DOMContentLoaded", () => {
     updateNavbar("../");
   }
 
-  // Hide Admin Dashboard button if user is not admin
+  // Hide Admin Dashboard button if user is not admin and 
+  // show Booking History button if user is not logged in as admin
   const adminBtn = document.getElementById("adminDashboardBtn");
+  const bookingHistoryBtn = document.getElementById("bookingHistoryBtn");
+
   if (adminBtn && typeof isAdmin === 'function') {
     if (!isAdmin()) {
       adminBtn.style.display = "none";
     }
   }
-  
+  // Show/hide Booking History button logic
+if (bookingHistoryBtn && typeof isAdmin === 'function') {
+  if (!isAdmin()) {
+    bookingHistoryBtn.style.display = "block";
+  } else {
+    bookingHistoryBtn.style.display = "none";
+  }
+}
+
   // Check if user is logged in
   if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
     if (typeof showToast === 'function') {
@@ -103,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showError('nameError', '❌ Name must be less than 50 characters');
       return false;
     }
-    const nameRegex = /^[A-Za-z\s]+$/;
+    const nameRegex = /^[A-Za-z\s.-]+$/;
     if (!nameRegex.test(name)) {
       showError('nameError', '❌ Name should contain only letters and spaces');
       return false;

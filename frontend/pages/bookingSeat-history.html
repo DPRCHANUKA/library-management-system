@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Booking History - Library System</title>
+  <link rel="stylesheet" href="../css/bookingSeat-history.css">
+  <link rel="stylesheet" href="../css/navbar.css">
+  <link rel="stylesheet" href="../css/footer.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="history-container">
+    <!-- Header -->
+    <div class="history-header">
+      <h1>📝 My Booking History</h1>
+      <p>View, edit, or cancel your current seat bookings</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card total-bookings">
+        <div class="stat-icon">📖</div>
+        <div class="stat-info">
+          <h3>Total Bookings</h3>
+          <p id="totalBookings">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card active-bookings">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-info">
+          <h3>Active Now</h3>
+          <p id="activeBookings">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card completed">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <h3>Completed</h3>
+          <p id="completedBookings">0</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button onclick="window.location.href='bookingseats.html'" class="btn-primary">
+        🪑 Book New Seat
+      </button>
+      <button onclick="refreshHistory()" class="btn-secondary">
+        🔄 Refresh Data
+      </button>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="bookings-table-container">
+      <div class="table-header">
+        <h2>Your Bookings</h2>
+        <div class="filter-buttons">
+          <button onclick="filterBookings('all')" class="filter-btn active" id="filterAll">All</button>
+          <button onclick="filterBookings('active')" class="filter-btn" id="filterActive">Active Now</button>
+          <button onclick="filterBookings('completed')" class="filter-btn" id="filterCompleted">Completed</button>
+        </div>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search by Seat..." onkeyup="searchBookings()">
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Seat(s)</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Booked On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody">
+            <tr>
+              <td colspan="7" class="loading-text">Loading your bookings...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="history-footer">
+      <p>Last updated: <span id="lastUpdated">-</span></p>
+      <button onclick="window.location.href='bookingseats.html'" class="footer-link">
+        ← Back to Booking Page
+      </button>
+    </div>
+  </div>
+
+  <!-- Edit Drawer for Users -->
+  <div id="user-edit-drawer" class="drawer">
+    <div class="drawer-overlay" onclick="closeUserEditDrawer()"></div>
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h3>✏️ Edit Your Booking</h3>
+        <button onclick="closeUserEditDrawer()" class="drawer-close">✖</button>
+      </div>
+      
+      <form id="userEditForm" class="drawer-form">
+        <input type="hidden" id="editBookingId">
+        
+        <div class="form-group">
+          <label>Seat Number</label>
+          <select id="editSeat" class="form-input" required>
+            <option value="">Select a seat</option>
+            <option value="A1">A1</option><option value="A2">A2</option>
+            <option value="A3">A3</option><option value="A4">A4</option>
+            <option value="A5">A5</option><option value="A6">A6</option>
+            <option value="A7">A7</option><option value="A8">A8</option>
+            <option value="B1">B1</option><option value="B2">B2</option>
+            <option value="B3">B3</option><option value="B4">B4</option>
+            <option value="B5">B5</option><option value="B6">B6</option>
+            <option value="B7">B7</option><option value="B8">B8</option>
+            <option value="C1">C1</option><option value="C2">C2</option>
+            <option value="C3">C3</option><option value="C4">C4</option>
+            <option value="C5">C5</option><option value="C6">C6</option>
+            <option value="C7">C7</option><option value="C8">C8</option>
+            <option value="D1">D1</option><option value="D2">D2</option>
+            <option value="D3">D3</option><option value="D4">D4</option>
+            <option value="D5">D5</option><option value="D6">D6</option>
+            <option value="D7">D7</option><option value="D8">D8</option>
+          </select>
+          <div id="editSeatError" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label>From Time</label>
+          <input type="time" id="editFromTime" class="form-input" min="08:00" max="18:00" required>
+          <div id="editTimeError" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label>To Time</label>
+          <input type="time" id="editToTime" class="form-input" min="08:00" max="18:00" required>
+          <div id="editToTimeError" class="error-message"></div>
+        </div>
+
+        <div class="drawer-buttons">
+          <button type="button" onclick="closeUserEditDrawer()" class="btn-cancel-drawer">Cancel</button>
+          <button type="submit" class="btn-save-drawer">💾 Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cancel Confirmation Modal -->
+  <div id="cancelModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Cancel Booking</h3>
+        <span class="close-modal" onclick="closeCancelModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to cancel this booking?</p>
+        <p class="booking-details" id="cancelBookingDetails"></p>
+        <p class="warning-text">⚠️ This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeCancelModal()" class="btn-secondary-modal">No, Keep It</button>
+        <button onclick="confirmCancelBooking()" class="btn-danger-modal">Yes, Cancel Booking</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/bookingSeat-history.js"></script>
+  
+ <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Update navbar
+    if (typeof updateNavbar === 'function') {
+      updateNavbar("../");
+    }
+    
+    // Check if user is logged in
+    const user = getUser ? getUser() : null;
+    console.log('User from auth.js:', user); // Debug
+    
+    if (!user) {
+      alert("Please login to view your booking history.");
+      window.location.href = "../index.html";
+      return;
+    }
+    
+    // Load user bookings
+    if (typeof loadUserBookingData === 'function') {
+      loadUserBookingData();
+    } else {
+      console.error('loadUserBookingData function not found');
+    }
+  });
+</script>
+
+  <div id="footer"></div>
+  <script>
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("footer").innerHTML = data;
+      });
+  </script>
+</body>
+</html>
