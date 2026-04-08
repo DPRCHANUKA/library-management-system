@@ -13,7 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, "../frontend")));
-
 // Routes
 const bookingRoutes = require("./routes/bookingRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -43,10 +42,15 @@ async function seedAdmin() {
         studentId: "ADMIN001",
         name: "Administrator",
         password: "admin123",
-        isAdmin: true
+        isAdmin: true,
+        role: "admin"
       });
       await admin.save();
       console.log("Default admin account created ✅ (ADMIN001 / admin123)");
+    } else if (existing.role !== "admin") {
+      // Self-heal existing admin accounts
+      existing.role = "admin";
+      await existing.save();
     }
   } catch (err) {
     console.log("Admin seed skipped:", err.message);
