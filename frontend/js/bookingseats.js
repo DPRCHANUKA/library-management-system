@@ -85,6 +85,165 @@ document.addEventListener("DOMContentLoaded", () => {
     dateInput.max = maxDate.toISOString().split('T')[0];
   }
 
+  // Function to get current time rounded to next 30 minutes
+  function getCurrentRoundedTime() {
+    const now = new Date();
+    let currentHour = now.getHours();
+    let currentMinute = now.getMinutes();
+    
+    if (currentMinute > 0 && currentMinute <= 30) {
+      currentMinute = 30;
+    } else if (currentMinute > 30) {
+      currentHour += 1;
+      currentMinute = 0;
+    }
+    
+    // Don't exceed 6 PM
+    if (currentHour >= 18) {
+      currentHour = 17;
+      currentMinute = 30;
+    }
+    
+    return `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+  }
+
+  // Function to set from time as read-only and fixed to current time
+  function setFixedFromTime() {
+    const selectedDate = dateInput.value;
+    const todayDate = new Date().toISOString().split('T')[0];
+    
+    if (selectedDate === todayDate) {
+      // For today, set from time to current rounded time (read-only)
+      const currentTimeFormatted = getCurrentRoundedTime();
+      fromTimeInput.value = currentTimeFormatted;
+      fromTimeInput.readOnly = true;
+      fromTimeInput.style.backgroundColor = '#f3f4f6';
+      fromTimeInput.style.cursor = 'not-allowed';
+      
+      // Set min/max for to time
+      toTimeInput.min = currentTimeFormatted;
+      toTimeInput.max = "18:00";
+      
+      // Calculate max allowed to time (4 hours from from time)
+      updateToTimeConstraints();
+      
+      // Show warning message
+      let timeWarning = document.getElementById('timeWarning');
+      if (!timeWarning) {
+        const warningDiv = document.createElement('div');
+        warningDiv.id = 'timeWarning';
+        warningDiv.className = 'text-yellow-500 text-xs mt-1';
+        fromTimeInput.parentNode.appendChild(warningDiv);
+        timeWarning = warningDiv;
+      }
+      const now = new Date();
+      timeWarning.textContent = `⚠️ Start time is fixed to current time (${currentTimeFormatted}). You can only change end time.`;
+    } else {
+      // For future dates, allow from time selection (8 AM to 6 PM)
+      fromTimeInput.readOnly = false;
+      fromTimeInput.style.backgroundColor = '';
+      fromTimeInput.style.cursor = 'pointer';
+      fromTimeInput.min = "08:00";
+      fromTimeInput.max = "18:00";
+      
+      if (!fromTimeInput.value || fromTimeInput.value < "08:00") {
+        fromTimeInput.value = "08:00";
+      }
+      
+      toTimeInput.min = fromTimeInput.value;
+      toTimeInput.max = "18:00";
+      
+      const timeWarning = document.getElementById('timeWarning');
+      if (timeWarning) timeWarning.remove();
+    }
+  }
+
+  // Function to update to time constraints (max 4 hours from from time)
+  function updateToTimeConstraints() {
+    if (fromTimeInput.value) {
+      const [fromHours, fromMinutes] = fromTimeInput.value.split(':').map(Number);
+      
+      // Calculate max allowed time (4 hours later)
+      let maxHours = fromHours + 4;
+      let maxMinutes = fromMinutes;
+      
+      if (maxMinutes >= 60) {
+        maxHours += Math.floor(maxMinutes / 60);
+        maxMinutes = maxMinutes % 60;
+      }
+      
+      const maxAllowedTime = `${maxHours.toString().padStart(2, '0')}:${maxMinutes.toString().padStart(2, '0')}`;
+      
+      // To time cannot exceed 6 PM or max allowed time
+      const absoluteMax = maxAllowedTime < "18:00" ? maxAllowedTime : "18:00";
+      toTimeInput.max = absoluteMax;
+      
+      // Set default to time (30 minutes after from time, but not exceeding max)
+      if (!toTimeInput.value || toTimeInput.value <= fromTimeInput.value) {
+        let newMinutes = fromMinutes + 30;
+        let newHours = fromHours;
+        
+        if (newMinutes >= 60) {
+          newHours += 1;
+          newMinutes -= 60;
+        }
+        
+        const defaultToTime = `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+        
+        if (defaultToTime <= absoluteMax) {
+          toTimeInput.value = defaultToTime;
+        } else {
+          toTimeInput.value = absoluteMax;
+        }
+      }
+      
+      // Show duration warning
+      let durationWarning = document.getElementById('durationWarning');
+      if (!durationWarning) {
+        const warningDiv = document.createElement('div');
+        warningDiv.id = 'durationWarning';
+        warningDiv.className = 'text-blue-500 text-xs mt-1';
+        toTimeInput.parentNode.appendChild(warningDiv);
+        durationWarning = warningDiv;
+      }
+      
+      const maxTimeFormatted = absoluteMax;
+      durationWarning.textContent = `⏱️ Max end time: ${maxTimeFormatted} (4 hours max) | Min duration: 30 minutes`;
+      
+      // Validate duration on to time change
+      validateDuration();
+    }
+  }
+
+  // Function to validate duration
+  function validateDuration() {
+    if (fromTimeInput.value && toTimeInput.value) {
+      const fromMinutes = convertTimeToMinutes(fromTimeInput.value);
+      const toMinutes = convertTimeToMinutes(toTimeInput.value);
+      const duration = toMinutes - fromMinutes;
+      
+      let durationWarning = document.getElementById('durationWarning');
+      if (!durationWarning) {
+        const warningDiv = document.createElement('div');
+        warningDiv.id = 'durationWarning';
+        warningDiv.className = 'text-blue-500 text-xs mt-1';
+        toTimeInput.parentNode.appendChild(warningDiv);
+        durationWarning = warningDiv;
+      }
+      
+      if (duration < 30) {
+        durationWarning.innerHTML = '⚠️ Minimum booking is 30 minutes! Please select a later end time.';
+        durationWarning.style.color = '#ef4444';
+      } else if (duration > 240) {
+        durationWarning.innerHTML = '⚠️ Maximum booking is 4 hours! Please select an earlier end time.';
+        durationWarning.style.color = '#ef4444';
+      } else {
+        durationWarning.innerHTML = `✅ Duration: ${Math.floor(duration / 60)}h ${duration % 60}m (Max 4 hours)`;
+        durationWarning.style.color = '#10b981';
+      }
+    }
+  }
+
   // Function to get user's active booking count
   async function getUserActiveBookingCount() {
     if (!currentUser) return 0;
@@ -99,15 +258,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const now = new Date();
       const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
       
-      // Filter active bookings for current user
       const activeBookings = allBookings.filter(booking => {
-        // Check if booking belongs to current user
         const bookingStudentId = booking.studentId || '';
         const userStudentId = currentUser.studentId || currentUser.id || currentUser.email || '';
         
         if (bookingStudentId !== userStudentId) return false;
+        if (booking.status === 'cancelled') return false;
         
-        // Check if booking is active (not expired)
         const bookingDate = booking.date;
         if (bookingDate < todayDate) return false;
         
@@ -119,7 +276,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
       });
       
-      // Count total seats booked (each booking can have multiple seats)
       let totalSeatsBooked = 0;
       activeBookings.forEach(booking => {
         if (Array.isArray(booking.seat)) {
@@ -132,7 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
       userActiveBookingCount = totalSeatsBooked;
       console.log(`User has ${userActiveBookingCount} active seat(s) booked`);
       
-      // Show warning if user already has 2 seats
       const limitWarning = document.getElementById('bookingLimitWarning');
       if (userActiveBookingCount >= 2) {
         if (!limitWarning) {
@@ -178,82 +333,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // Function to set minimum time based on current time for today
-  function setMinTimeForToday() {
-    const selectedDate = dateInput.value;
-    const todayDate = new Date().toISOString().split('T')[0];
-    
-    if (selectedDate === todayDate) {
-      const now = new Date();
-      let currentHour = now.getHours();
-      let currentMinute = now.getMinutes();
-      
-      // Round up to next 30-minute interval
-      if (currentMinute > 0 && currentMinute <= 30) {
-        currentMinute = 30;
-      } else if (currentMinute > 30) {
-        currentHour += 1;
-        currentMinute = 0;
-      }
-      
-      const currentTimeFormatted = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
-      fromTimeInput.min = currentTimeFormatted;
-      fromTimeInput.max = "22:00";
-      
-      if (fromTimeInput.value < currentTimeFormatted) {
-        fromTimeInput.value = currentTimeFormatted;
-      }
-      
-      updateToTimeMin();
-      
-      // Show/hide warning message
-      let timeWarning = document.getElementById('timeWarning');
-      if (!timeWarning) {
-        const warningDiv = document.createElement('div');
-        warningDiv.id = 'timeWarning';
-        warningDiv.className = 'text-yellow-500 text-xs mt-1';
-        fromTimeInput.parentNode.appendChild(warningDiv);
-        timeWarning = warningDiv;
-      }
-      timeWarning.textContent = `⚠️ Current time is ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}. Earliest booking: ${currentTimeFormatted}`;
-    } else {
-      fromTimeInput.min = "08:00";
-      fromTimeInput.max = "22:00";
-      const timeWarning = document.getElementById('timeWarning');
-      if (timeWarning) timeWarning.remove();
-    }
-  }
-  
-  // Function to update toTime minimum based on fromTime
-  function updateToTimeMin() {
-    if (fromTimeInput.value) {
-      toTimeInput.min = fromTimeInput.value;
-      toTimeInput.max = "22:00";
-      
-      if (toTimeInput.value <= fromTimeInput.value) {
-        const [hours, minutes] = fromTimeInput.value.split(':');
-        let newHours = parseInt(hours);
-        let newMinutes = parseInt(minutes) + 30;
-        
-        if (newMinutes >= 60) {
-          newHours += 1;
-          newMinutes -= 60;
-        }
-        
-        if (newHours < 22 || (newHours === 22 && newMinutes === 0)) {
-          toTimeInput.value = `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
-        } else {
-          toTimeInput.value = "22:00";
-        }
-      }
-    }
-  }
-
   // Function to load ALL current bookings from database and update seat availability
   async function loadCurrentBookings() {
     const date = dateInput ? dateInput.value : formattedDate;
     const fromTime = fromTimeInput ? fromTimeInput.value : "08:00";
-    const toTime = toTimeInput ? toTimeInput.value : "22:00";
+    const toTime = toTimeInput ? toTimeInput.value : "18:00";
     
     if (!date || !fromTime || !toTime) return;
     
@@ -263,13 +347,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       
       if (response.ok) {
-        // Reset all seats to available first
         seats.forEach(seat => {
           seat.classList.remove('available', 'selected', 'booked');
           seat.classList.add('available');
         });
         
-        // Mark booked seats for the current time slot
         if (data.bookedSeats && data.bookedSeats.length > 0) {
           console.log(`Found ${data.bookedSeats.length} booked seats:`, data.bookedSeats);
           seats.forEach(seat => {
@@ -304,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Auto-refresh bookings every 30 seconds for real-time updates
+  // Auto-refresh bookings every 30 seconds
   function startAutoRefresh() {
     if (refreshInterval) clearInterval(refreshInterval);
     refreshInterval = setInterval(() => {
@@ -312,13 +394,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (fromTimeInput.value && toTimeInput.value) {
         console.log("Auto-refreshing bookings...");
         loadCurrentBookings();
-        setMinTimeForToday();
-        getUserActiveBookingCount(); // Refresh user's booking count
+        getUserActiveBookingCount();
       }
-    }, 30000); // Refresh every 30 seconds for real-time updates
+    }, 30000);
   }
 
-  // Clear all error messages
   function clearErrors() {
     document.querySelectorAll('.error-message').forEach(el => {
       el.style.display = 'none';
@@ -329,7 +409,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Show error for specific field
   function showError(fieldId, message) {
     const errorDiv = document.getElementById(fieldId);
     if (errorDiv) {
@@ -342,7 +421,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Validate Name
   function validateName(name) {
     if (!name) {
       showError('nameError', '❌ Name is required');
@@ -364,7 +442,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // Validate Student ID
   function validateStudentId(studentId) {
     if (!studentId) {
       showError('studentIdError', '❌ Student/Lecturer ID is required');
@@ -378,14 +455,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // Validate Seats with availability check
   async function validateSeats() {
     if (selectedSeats.length === 0) {
       showError('seatError', '❌ Please select at least one seat');
       return false;
     }
     
-    // Check if user can book more seats
     const canBook = await canUserBookMoreSeats(selectedSeats.length);
     if (!canBook) {
       showError('seatError', `❌ You already have ${userActiveBookingCount} active seat(s). Maximum limit is 2 seats total.`);
@@ -406,7 +481,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // Validate Date
   function validateDate(date) {
     if (!date) {
       showError('dateError', '❌ Date is required');
@@ -430,7 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // Validate Time with current time restriction
+  // Validate Time with duration restrictions
   function validateTime(fromTime, toTime) {
     if (!fromTime) {
       showError('fromTimeError', '❌ Start time is required');
@@ -444,15 +518,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedDate = dateInput.value;
     const todayDate = new Date().toISOString().split('T')[0];
     
-    if (selectedDate === todayDate) {
-      const now = new Date();
-      const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
-      const fromMinutes = parseInt(fromTime.split(':')[0]) * 60 + parseInt(fromTime.split(':')[1]);
-      
-      if (fromMinutes < currentTimeMinutes - 15) {
-        showError('fromTimeError', '❌ Cannot book past time. Select current or future time');
-        return false;
-      }
+    // Check operating hours
+    if (fromTime < "08:00" || toTime > "18:00") {
+      showError('toTimeError', '❌ Booking hours are 8:00 AM to 6:00 PM only');
+      return false;
     }
     
     if (fromTime >= toTime) {
@@ -460,8 +529,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
     
-    const fromMinutes = parseInt(fromTime.split(':')[0]) * 60 + parseInt(fromTime.split(':')[1]);
-    const toMinutes = parseInt(toTime.split(':')[0]) * 60 + parseInt(toTime.split(':')[1]);
+    const fromMinutes = convertTimeToMinutes(fromTime);
+    const toMinutes = convertTimeToMinutes(toTime);
     const duration = toMinutes - fromMinutes;
     
     if (duration < 30) {
@@ -473,10 +542,10 @@ document.addEventListener("DOMContentLoaded", () => {
       showError('toTimeError', '❌ Maximum booking is 4 hours');
       return false;
     }
+    
     return true;
   }
 
-  // Validate all fields
   async function validateForm() {
     clearErrors();
     
@@ -514,7 +583,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const fromTime = fromTimeInput.value;
         const toTime = toTimeInput.value;
         
-        // Check if user can book more seats before selection
         const currentSeatCount = selectedSeats.includes(seatNumber) ? selectedSeats.length : selectedSeats.length + 1;
         const canBook = await canUserBookMoreSeats(currentSeatCount);
         if (!canBook && !selectedSeats.includes(seatNumber)) {
@@ -560,7 +628,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Date and time change handlers
   if (dateInput) {
     dateInput.addEventListener("change", () => {
-      setMinTimeForToday();
+      setFixedFromTime();
       if (fromTimeInput.value && toTimeInput.value) {
         loadCurrentBookings();
         selectedSeats = [];
@@ -572,7 +640,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   if (fromTimeInput) {
     fromTimeInput.addEventListener("change", () => {
-      updateToTimeMin();
+      updateToTimeConstraints();
       if (dateInput.value && toTimeInput.value) {
         loadCurrentBookings();
         selectedSeats = [];
@@ -585,6 +653,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   if (toTimeInput) {
     toTimeInput.addEventListener("change", () => {
+      validateDuration();
       if (dateInput.value && fromTimeInput.value) {
         loadCurrentBookings();
         selectedSeats = [];
@@ -636,7 +705,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         alert(`✅ Booking Confirmed!\n\nSeat(s): ${selectedSeats.join(", ")}\nDate: ${date}\nTime: ${fromTime} - ${toTime}\n\nThank you, ${name}!`);
 
-        // Update UI immediately
         selectedSeats.forEach(s => {
           document.querySelectorAll(".seat").forEach(btn => {
             if (btn.getAttribute("data-seat") === s) {
@@ -646,9 +714,8 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         });
 
-        // Reload bookings from database to ensure consistency
         await loadCurrentBookings();
-        await getUserActiveBookingCount(); // Update user's booking count
+        await getUserActiveBookingCount();
         
         selectedSeats = [];
         currentTable = null;
@@ -748,34 +815,10 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Initial setup
   if (fromTimeInput && toTimeInput && dateInput) {
-    const now = new Date();
-    let currentHour = now.getHours();
-    let currentMinute = now.getMinutes();
-    
-    if (currentMinute > 0 && currentMinute <= 30) currentMinute = 30;
-    else if (currentMinute > 30) {
-      currentHour += 1;
-      currentMinute = 0;
-    }
-    
-    if (!fromTimeInput.value) {
-      fromTimeInput.value = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
-    }
-    
-    if (!toTimeInput.value) {
-      let newHours = currentHour;
-      let newMinutes = currentMinute + 30;
-      if (newMinutes >= 60) {
-        newHours += 1;
-        newMinutes -= 60;
-      }
-      toTimeInput.value = `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
-    }
-    
-    setMinTimeForToday();
-    // Load bookings from database on page load
+    setFixedFromTime();
+    updateToTimeConstraints();
     loadCurrentBookings();
-    getUserActiveBookingCount(); // Get user's current booking count
+    getUserActiveBookingCount();
     startAutoRefresh();
   }
   
@@ -787,7 +830,6 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(seat, { attributes: true, attributeFilter: ['class'] });
   });
   
-  // Cleanup on page unload
   window.addEventListener('beforeunload', () => {
     if (refreshInterval) clearInterval(refreshInterval);
   });

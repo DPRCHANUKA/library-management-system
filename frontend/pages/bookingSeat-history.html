@@ -48,7 +48,6 @@
           <p id="completedBookings">0</p>
         </div>
       </div>
-
     </div>
 
     <!-- Action Buttons -->
@@ -106,57 +105,53 @@
     </div>
   </div>
 
-  <!-- Edit Drawer for Users -->
+  <!-- Edit Drawer for Users - UPDATED VERSION -->
   <div id="user-edit-drawer" class="drawer">
     <div class="drawer-overlay" onclick="closeUserEditDrawer()"></div>
     <div class="drawer-content">
       <div class="drawer-header">
-        <h3>✏️ Edit Your Booking</h3>
+        <h3>✏️ Edit Booking Time</h3>
         <button onclick="closeUserEditDrawer()" class="drawer-close">✖</button>
       </div>
       
       <form id="userEditForm" class="drawer-form">
         <input type="hidden" id="editBookingId">
         
+        <!-- Seat Display - READ ONLY (shows all seats) -->
         <div class="form-group">
-          <label>Seat Number</label>
-          <select id="editSeat" class="form-input" required>
-            <option value="">Select a seat</option>
-            <option value="A1">A1</option><option value="A2">A2</option>
-            <option value="A3">A3</option><option value="A4">A4</option>
-            <option value="A5">A5</option><option value="A6">A6</option>
-            <option value="A7">A7</option><option value="A8">A8</option>
-            <option value="B1">B1</option><option value="B2">B2</option>
-            <option value="B3">B3</option><option value="B4">B4</option>
-            <option value="B5">B5</option><option value="B6">B6</option>
-            <option value="B7">B7</option><option value="B8">B8</option>
-            <option value="C1">C1</option><option value="C2">C2</option>
-            <option value="C3">C3</option><option value="C4">C4</option>
-            <option value="C5">C5</option><option value="C6">C6</option>
-            <option value="C7">C7</option><option value="C8">C8</option>
-            <option value="D1">D1</option><option value="D2">D2</option>
-            <option value="D3">D3</option><option value="D4">D4</option>
-            <option value="D5">D5</option><option value="D6">D6</option>
-            <option value="D7">D7</option><option value="D8">D8</option>
-          </select>
+          <label>📌 Booked Seat(s)</label>
+          <input type="text" id="editSeatsDisplay" class="form-input" readonly disabled 
+                 style="background: #0F172A; cursor: not-allowed; opacity: 0.8;">
+          <small style="color: #9CA3AF; font-size: 0.75rem; display: block; margin-top: 5px;">
+            ⚠️ Seats cannot be changed. Only time can be edited.
+          </small>
           <div id="editSeatError" class="error-message"></div>
         </div>
 
+        <!-- Date Display - READ ONLY -->
         <div class="form-group">
-          <label>From Time</label>
-          <input type="time" id="editFromTime" class="form-input" min="08:00" max="18:00" required>
+          <label>📅 Date</label>
+          <input type="date" id="editDate" class="form-input" readonly disabled 
+                 style="background: #0F172A; cursor: not-allowed; opacity: 0.8;">
+        </div>
+
+        <!-- From Time - EDITABLE -->
+        <div class="form-group">
+          <label>⏰ From Time</label>
+          <input type="time" id="editFromTime" class="form-input" step="1800" required>
           <div id="editTimeError" class="error-message"></div>
         </div>
 
+        <!-- To Time - EDITABLE -->
         <div class="form-group">
-          <label>To Time</label>
-          <input type="time" id="editToTime" class="form-input" min="08:00" max="18:00" required>
+          <label>⏰ To Time</label>
+          <input type="time" id="editToTime" class="form-input" step="1800" required>
           <div id="editToTimeError" class="error-message"></div>
         </div>
 
         <div class="drawer-buttons">
           <button type="button" onclick="closeUserEditDrawer()" class="btn-cancel-drawer">Cancel</button>
-          <button type="submit" class="btn-save-drawer">💾 Save Changes</button>
+          <button type="submit" class="btn-save-drawer">💾 Update Time Only</button>
         </div>
       </form>
     </div>
@@ -184,7 +179,7 @@
   <script src="../js/auth.js"></script>
   <script src="../js/bookingSeat-history.js"></script>
   
- <script>
+  <script>
   document.addEventListener("DOMContentLoaded", () => {
     // Update navbar
     if (typeof updateNavbar === 'function') {
@@ -193,7 +188,7 @@
     
     // Check if user is logged in
     const user = getUser ? getUser() : null;
-    console.log('User from auth.js:', user); // Debug
+    console.log('User from auth.js:', user);
     
     if (!user) {
       alert("Please login to view your booking history.");
@@ -208,7 +203,7 @@
       console.error('loadUserBookingData function not found');
     }
   });
-</script>
+  </script>
 
   <div id="footer"></div>
   <script>

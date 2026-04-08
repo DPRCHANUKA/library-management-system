@@ -1,23 +1,21 @@
 // Load user booking history when page loads
 document.addEventListener('DOMContentLoaded', () => {
   loadUserBookingData();
-  setInterval(loadUserBookingData, 30000); // Auto-refresh every 30 seconds
+  setInterval(loadUserBookingData, 30000);
 });
 
 // Global variable to store user's bookings for search
 let allUserBookings = [];
 let currentFilter = 'all';
 
-// Get current logged in user - USING SAME METHOD AS ADMIN DASHBOARD
+// Get current logged in user
 function getCurrentUser() {
   try {
-    // Try to use the global getUser function from auth.js first
     if (typeof getUser === 'function') {
       const user = getUser();
       if (user) return user;
     }
     
-    // Fallback: check localStorage directly
     const userData = localStorage.getItem('user') || localStorage.getItem('currentUser') || localStorage.getItem('authUser');
     if (userData) {
       return JSON.parse(userData);
@@ -30,13 +28,61 @@ function getCurrentUser() {
   }
 }
 
+// Function to get user's active booking count
+async function getUserActiveBookingCount() {
+  const user = getCurrentUser();
+  if (!user) return 0;
+  
+  try {
+    const response = await fetch('http://localhost:5000/api/bookings');
+    if (!response.ok) return 0;
+    
+    const data = await response.json();
+    const allBookings = data.bookings || data;
+    const todayDate = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    const activeBookings = allBookings.filter(booking => {
+      const bookingStudentId = booking.studentId || '';
+      const userStudentId = user.studentId || user.id || user.email || '';
+      
+      if (bookingStudentId !== userStudentId) return false;
+      if (booking.status === 'cancelled') return false;
+      
+      const bookingDate = booking.date;
+      if (bookingDate < todayDate) return false;
+      
+      if (bookingDate === todayDate) {
+        const toTimeMinutes = convertTimeToMinutes(booking.toTime);
+        if (toTimeMinutes <= currentTimeMinutes) return false;
+      }
+      
+      return true;
+    });
+    
+    let totalSeatsBooked = 0;
+    activeBookings.forEach(booking => {
+      if (Array.isArray(booking.seat)) {
+        totalSeatsBooked += booking.seat.length;
+      } else {
+        totalSeatsBooked += 1;
+      }
+    });
+    
+    return totalSeatsBooked;
+  } catch (err) {
+    console.error("Error getting user booking count:", err);
+    return 0;
+  }
+}
+
 // Function to load user's booking data
 async function loadUserBookingData() {
   try {
     showLoading();
     
     const user = getCurrentUser();
-    console.log('Current user:', user); // Debug: check what user object looks like
     
     if (!user) {
       showError('Please login to view your booking history');
@@ -52,53 +98,36 @@ async function loadUserBookingData() {
     const data = await response.json();
     const allBookings = data.bookings || data;
     
-    console.log('All bookings:', allBookings); // Debug: check all bookings
-    console.log('User ID to match:', user.id, user.studentId, user.email); // Debug
-    
-    // Filter bookings for current user only - TRY MULTIPLE MATCHING METHODS
     allUserBookings = allBookings.filter(booking => {
-      // Check multiple possible user identifiers
       const bookingStudentId = booking.studentId || '';
-      const userName = booking.name || '';
-      
       const userStudentId = user.studentId || user.id || user.email || '';
-      const userNameMatch = user.name || '';
       
       return bookingStudentId === userStudentId || 
              bookingStudentId === user.id ||
-             bookingStudentId === user.email ||
-             userName === userNameMatch ||
-             (bookingStudentId && bookingStudentId.toLowerCase() === userStudentId.toLowerCase());
+             bookingStudentId === user.email;
     });
     
-    console.log('Filtered user bookings:', allUserBookings); // Debug: check filtered bookings
-    
-    // Calculate statistics for user
     updateUserStatistics(allUserBookings);
-    
-    // Display user's bookings in table
     displayUserBookings(allUserBookings);
-    
-    // Update last updated time
     updateLastUpdated();
     
   } catch (error) {
     console.error('Error loading user bookings:', error);
-    showError('Failed to load your bookings. Make sure the server is running on http://localhost:5000');
+    showError('Failed to load your bookings.');
   }
 }
 
 // Function to update user statistics
 function updateUserStatistics(bookings) {
   const total = bookings.length;
-  const today = new Date().toDateString();
   const now = new Date();
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
   
-  // Count active bookings (today and current time within range)
   const active = bookings.filter(booking => {
     if (booking.status === 'cancelled') return false;
     const bookingDate = new Date(booking.date).toDateString();
-    if (bookingDate !== today) return false;
+    if (bookingDate !== now.toDateString()) return false;
     
     const currentTime = now.getHours() * 60 + now.getMinutes();
     const fromTime = convertTimeToMinutes(booking.fromTime);
@@ -107,32 +136,29 @@ function updateUserStatistics(bookings) {
     return currentTime >= fromTime && currentTime <= toTime;
   }).length;
   
-  // Count completed bookings (today but time passed)
   const completed = bookings.filter(booking => {
     if (booking.status === 'cancelled') return false;
     if (booking.status === 'completed') return true;
     
-    const bookingDate = new Date(booking.date).toDateString();
-    if (bookingDate !== today) return false;
+    const bookingDate = new Date(booking.date);
+    if (bookingDate < todayStart) return true;
     
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    const toTime = convertTimeToMinutes(booking.toTime);
+    if (bookingDate.toDateString() === now.toDateString()) {
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      const toTime = convertTimeToMinutes(booking.toTime);
+      if (currentTime > toTime) return true;
+    }
     
-    return currentTime > toTime;
+    return false;
   }).length;
   
- 
-  
-  // Update DOM
   const totalEl = document.getElementById('totalBookings');
   const activeEl = document.getElementById('activeBookings');
   const completedEl = document.getElementById('completedBookings');
   
-  
   if (totalEl) totalEl.textContent = total;
   if (activeEl) activeEl.textContent = active;
   if (completedEl) completedEl.textContent = completed;
- 
 }
 
 // Helper function to convert time to minutes
@@ -152,14 +178,10 @@ function formatSeats(seats) {
 }
 
 // Function to display user's bookings in table
-// Function to display user's bookings in table
 function displayUserBookings(bookings) {
   const tableBody = document.getElementById('bookingsTableBody');
   
-  if (!tableBody) {
-    console.error('Table body element not found');
-    return;
-  }
+  if (!tableBody) return;
   
   if (!bookings || bookings.length === 0) {
     tableBody.innerHTML = `
@@ -173,7 +195,6 @@ function displayUserBookings(bookings) {
     return;
   }
   
-  // Sort by date (newest first)
   const sortedBookings = [...bookings].reverse();
   
   tableBody.innerHTML = sortedBookings.map(booking => {
@@ -194,7 +215,7 @@ function displayUserBookings(bookings) {
         <td>${booking.createdAt ? formatDate(booking.createdAt) : 'N/A'}</td>
         <td>
           <button onclick="viewUserBooking('${bookingId}')" class="btn-view">📄 View</button>
-          ${canEdit ? `<button onclick="editUserBooking('${bookingId}')" class="btn-edit">✏️ Edit</button>` : ''}
+          ${canEdit ? `<button onclick="editUserBooking('${bookingId}')" class="btn-edit">✏️ Edit Time</button>` : ''}
           ${canCancel ? `<button onclick="cancelUserBooking('${bookingId}')" class="btn-cancel">❌ Cancel</button>` : ''}
         </td>
       </tr>
@@ -223,7 +244,6 @@ function getBookingStatus(booking) {
   return 'active';
 }
 
-// Get status CSS class
 function getStatusClass(status) {
   switch(status) {
     case 'active': return 'status-active';
@@ -233,7 +253,6 @@ function getStatusClass(status) {
   }
 }
 
-// Get status text
 function getStatusText(status) {
   switch(status) {
     case 'active': return 'Active Now';
@@ -243,7 +262,6 @@ function getStatusText(status) {
   }
 }
 
-// Check if booking can be edited (only active today's bookings)
 function canEditBooking(booking) {
   if (booking.status === 'cancelled') return false;
   if (booking.status === 'completed') return false;
@@ -251,18 +269,15 @@ function canEditBooking(booking) {
   const today = new Date().toDateString();
   const bookingDate = new Date(booking.date).toDateString();
   
-  // Only today's bookings can be edited
   if (bookingDate !== today) return false;
   
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
   const toTime = convertTimeToMinutes(booking.toTime);
   
-  // Can edit if booking hasn't ended yet
   return currentTime <= toTime;
 }
 
-// Format date
 function formatDate(dateString) {
   if (!dateString) return 'N/A';
   try {
@@ -277,7 +292,6 @@ function formatDate(dateString) {
   }
 }
 
-// Function to search user's bookings
 function searchBookings() {
   const searchInput = document.getElementById('searchInput');
   if (!searchInput) return;
@@ -296,7 +310,6 @@ function searchBookings() {
   displayUserBookings(filtered);
 }
 
-// Function to filter bookings by status
 function filterBookings(filter) {
   currentFilter = filter;
   
@@ -320,10 +333,8 @@ function filterBookings(filter) {
     const completed = allUserBookings.filter(booking => getBookingStatus(booking) === 'completed');
     displayUserBookings(completed);
   }
- 
 }
 
-// Function to refresh data manually
 function refreshHistory() {
   loadUserBookingData();
   const refreshBtn = document.querySelector('.btn-secondary');
@@ -336,7 +347,6 @@ function refreshHistory() {
   }
 }
 
-// View user booking details
 function viewUserBooking(id) {
   const booking = allUserBookings.find(b => (b._id === id || b.id === id));
   if (!booking) return;
@@ -344,19 +354,10 @@ function viewUserBooking(id) {
   const status = getBookingStatus(booking);
   const statusText = getStatusText(status);
   
-  alert(`Booking Details:
-    
-Booking ID: ${id}
-Seat: ${formatSeats(booking.seat)}
-Date: ${booking.date}
-Time: ${booking.fromTime} - ${booking.toTime}
-Status: ${statusText}
-Name: ${booking.name}
-Student ID: ${booking.studentId}
-Booked On: ${booking.createdAt ? formatDate(booking.createdAt) : 'N/A'}`);
+  alert(`Booking Details:\n\nBooking ID: ${id}\nSeat(s): ${formatSeats(booking.seat)}\nDate: ${booking.date}\nTime: ${booking.fromTime} - ${booking.toTime}\nStatus: ${statusText}\nName: ${booking.name}\nStudent ID: ${booking.studentId}`);
 }
 
-// Edit user booking
+// ========== FIXED EDIT FUNCTION ==========
 function editUserBooking(id) {
   const booking = allUserBookings.find(b => (b._id === id || b.id === id));
   if (!booking) return;
@@ -366,24 +367,46 @@ function editUserBooking(id) {
     return;
   }
   
-  // Populate edit form
   const editBookingId = document.getElementById('editBookingId');
-  const editSeat = document.getElementById('editSeat');
+  const editSeatsDisplay = document.getElementById('editSeatsDisplay');
   const editFromTime = document.getElementById('editFromTime');
   const editToTime = document.getElementById('editToTime');
+  const editDate = document.getElementById('editDate');
   
   if (editBookingId) editBookingId.value = booking._id || booking.id;
-  if (editSeat) {
-    const seatValue = Array.isArray(booking.seat) ? booking.seat[0] : booking.seat;
-    editSeat.value = seatValue;
-  }
-  if (editFromTime) editFromTime.value = booking.fromTime;
-  if (editToTime) editToTime.value = booking.toTime;
   
-  // Clear previous errors
+  if (editSeatsDisplay) {
+    const seatsArray = Array.isArray(booking.seat) ? booking.seat : [booking.seat];
+    editSeatsDisplay.value = seatsArray.join(', ');
+    editSeatsDisplay.readOnly = true;
+  }
+  
+  if (editDate) {
+    editDate.value = booking.date;
+    editDate.readOnly = true;
+  }
+  
+  // Make both from time and to time EDITABLE
+  if (editFromTime) {
+    editFromTime.value = booking.fromTime;
+    editFromTime.readOnly = false;
+    editFromTime.style.backgroundColor = '';
+    editFromTime.style.cursor = 'pointer';
+    editFromTime.min = "08:00";
+    editFromTime.max = "18:00";
+  }
+  
+  if (editToTime) {
+    editToTime.value = booking.toTime;
+    editToTime.readOnly = false;
+    editToTime.style.backgroundColor = '';
+    editToTime.style.cursor = 'pointer';
+    editToTime.min = "08:00";
+    editToTime.max = "18:00";
+  }
+  
   clearEditErrors();
   
-  // Show drawer
   const drawer = document.getElementById('user-edit-drawer');
   if (drawer) {
     drawer.style.display = 'block';
@@ -391,7 +414,6 @@ function editUserBooking(id) {
   }
 }
 
-// Cancel user booking
 async function cancelUserBooking(id) {
   const booking = allUserBookings.find(b => (b._id === id || b.id === id));
   if (!booking) return;
@@ -413,7 +435,7 @@ async function cancelUserBooking(id) {
     }
     
     alert('✅ Booking cancelled successfully!');
-    loadUserBookingData(); // Reload
+    loadUserBookingData();
     
   } catch (error) {
     console.error('Error cancelling booking:', error);
@@ -421,7 +443,6 @@ async function cancelUserBooking(id) {
   }
 }
 
-// Close edit drawer
 function closeUserEditDrawer() {
   const drawer = document.getElementById('user-edit-drawer');
   if (drawer) {
@@ -431,7 +452,6 @@ function closeUserEditDrawer() {
   clearEditErrors();
 }
 
-// Clear edit form errors
 function clearEditErrors() {
   const errors = ['editSeatError', 'editTimeError', 'editToTimeError'];
   errors.forEach(id => {
@@ -443,38 +463,9 @@ function clearEditErrors() {
   });
 }
 
-// Validate user edit form
-function validateUserEditForm(seat, fromTime, toTime, originalSeat, bookingId, bookingDate) {
-  // Check if seat is changed and already booked
-  if (seat !== originalSeat) {
-    // Check if seat is already booked for this time slot
-    const isSeatTaken = allUserBookings.some(booking => {
-      if ((booking._id === bookingId || booking.id === bookingId)) return false;
-      if (booking.status === 'cancelled') return false;
-      if (booking.date !== bookingDate) return false;
-      
-      const bookingSeat = Array.isArray(booking.seat) ? booking.seat[0] : booking.seat;
-      if (bookingSeat !== seat) return false;
-      
-      const existingFrom = convertTimeToMinutes(booking.fromTime);
-      const existingTo = convertTimeToMinutes(booking.toTime);
-      const newFrom = convertTimeToMinutes(fromTime);
-      const newTo = convertTimeToMinutes(toTime);
-      
-      return (newFrom < existingTo && newTo > existingFrom);
-    });
-    
-    if (isSeatTaken) {
-      const errorEl = document.getElementById('editSeatError');
-      if (errorEl) {
-        errorEl.textContent = 'This seat is already booked for the selected time slot';
-        errorEl.classList.add('show');
-      }
-      return false;
-    }
-  }
-  
-  // Validate time range
+// ========== FIXED VALIDATION FUNCTION ==========
+async function validateUserEditForm(fromTime, toTime, bookingDate) {
+  // Basic validations
   if (fromTime >= toTime) {
     const errorEl = document.getElementById('editTimeError');
     if (errorEl) {
@@ -484,7 +475,28 @@ function validateUserEditForm(seat, fromTime, toTime, originalSeat, bookingId, b
     return false;
   }
   
-  // Validate operating hours
+  const fromMinutes = convertTimeToMinutes(fromTime);
+  const toMinutes = convertTimeToMinutes(toTime);
+  const duration = toMinutes - fromMinutes;
+  
+  if (duration < 30) {
+    const errorEl = document.getElementById('editTimeError');
+    if (errorEl) {
+      errorEl.textContent = 'Minimum booking is 30 minutes';
+      errorEl.classList.add('show');
+    }
+    return false;
+  }
+  
+  if (duration > 240) {
+    const errorEl = document.getElementById('editTimeError');
+    if (errorEl) {
+      errorEl.textContent = 'Maximum booking is 4 hours';
+      errorEl.classList.add('show');
+    }
+    return false;
+  }
+  
   if (fromTime < '08:00' || toTime > '18:00') {
     const errorEl = document.getElementById('editTimeError');
     if (errorEl) {
@@ -494,10 +506,48 @@ function validateUserEditForm(seat, fromTime, toTime, originalSeat, bookingId, b
     return false;
   }
   
+  const bookingId = document.getElementById('editBookingId').value;
+  const currentBooking = allUserBookings.find(b => (b._id === bookingId || b.id === bookingId));
+  
+  if (currentBooking) {
+    const seats = Array.isArray(currentBooking.seat) ? currentBooking.seat : [currentBooking.seat];
+    
+    for (const seat of seats) {
+      const isAvailable = await checkSeatAvailabilityForEdit(seat, bookingDate, fromTime, toTime, currentBooking._id || currentBooking.id);
+      if (!isAvailable) {
+        const errorEl = document.getElementById('editTimeError');
+        if (errorEl) {
+          errorEl.textContent = `❌ The time slot conflicts with another booking for seat ${seat}`;
+          errorEl.classList.add('show');
+        }
+        return false;
+      }
+    }
+  }
+  
   return true;
 }
 
-// Show success message
+// ========== FIXED AVAILABILITY CHECK ==========
+async function checkSeatAvailabilityForEdit(seatNumber, date, fromTime, toTime, currentBookingId) {
+  try {
+    // Pass excludeBookingId to backend to exclude current booking
+    const url = `http://localhost:5000/api/bookings/check-availability?seat=${seatNumber}&date=${date}&fromTime=${fromTime}&toTime=${toTime}&excludeBookingId=${currentBookingId}`;
+    console.log("Checking URL:", url);
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    console.log(`Seat ${seatNumber} response:`, data);
+    
+    return data.available === true;
+    
+  } catch (err) {
+    console.error("Error checking seat availability:", err);
+    return false;
+  }
+}
+
 function showSuccessMessage(message) {
   const successDiv = document.createElement('div');
   successDiv.className = 'success-message';
@@ -527,27 +577,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
-      const newSeatInput = document.getElementById('editSeat');
       const newFromTimeInput = document.getElementById('editFromTime');
       const newToTimeInput = document.getElementById('editToTime');
       
-      if (!newSeatInput || !newFromTimeInput || !newToTimeInput) return;
+      if (!newFromTimeInput || !newToTimeInput) return;
       
-      const newSeat = newSeatInput.value;
       const newFromTime = newFromTimeInput.value;
       const newToTime = newToTimeInput.value;
-      const originalSeat = Array.isArray(booking.seat) ? booking.seat[0] : booking.seat;
       
-      // Validate
-      const isValid = validateUserEditForm(newSeat, newFromTime, newToTime, originalSeat, bookingId, booking.date);
+      const isValid = await validateUserEditForm(newFromTime, newToTime, booking.date);
       
       if (!isValid) return;
+      
+      const submitBtn = editForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn?.innerText || 'Save Changes';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = '⏳ Updating...';
+      }
       
       try {
         const updatedData = {
           name: booking.name,
           studentId: booking.studentId,
-          seat: [newSeat],
+          seat: booking.seat,
           date: booking.date,
           fromTime: newFromTime,
           toTime: newToTime
@@ -568,19 +621,23 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         
-        showSuccessMessage('✅ Booking updated successfully!');
+        showSuccessMessage('✅ Booking time updated successfully!');
         closeUserEditDrawer();
-        loadUserBookingData(); // Reload
+        loadUserBookingData();
         
       } catch (error) {
         console.error('Error updating booking:', error);
         alert('❌ Update failed. Please check your connection.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = originalText;
+        }
       }
     });
   }
 });
 
-// Helper function to update last updated time
 function updateLastUpdated() {
   const now = new Date();
   const formattedTime = now.toLocaleTimeString();
@@ -590,7 +647,6 @@ function updateLastUpdated() {
   }
 }
 
-// Helper function to show loading state
 function showLoading() {
   const tableBody = document.getElementById('bookingsTableBody');
   if (tableBody && (tableBody.children.length === 0 || tableBody.innerHTML.includes('Loading'))) {
@@ -602,7 +658,6 @@ function showLoading() {
   }
 }
 
-// Helper function to show error
 function showError(message) {
   const tableBody = document.getElementById('bookingsTableBody');
   if (tableBody) {
@@ -617,7 +672,6 @@ function showError(message) {
   }
 }
 
-// Helper function to escape HTML
 function escapeHtml(text) {
   if (!text) return '';
   const div = document.createElement('div');
@@ -625,7 +679,6 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Make functions globally available
 window.loadUserBookingData = loadUserBookingData;
 window.searchBookings = searchBookings;
 window.filterBookings = filterBookings;
