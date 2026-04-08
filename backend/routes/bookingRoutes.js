@@ -22,24 +22,36 @@ router.get("/", async (req, res) => {
 // GET check seat availability for a specific date and time
 router.get("/check-availability", async (req, res) => {
   try {
-    const { seat, date, fromTime, toTime } = req.query;
+    const { seat, date, fromTime, toTime, excludeBookingId } = req.query;
+    
+    console.log("Check availability params:", { seat, date, fromTime, toTime, excludeBookingId });
     
     // If checking single seat
     if (seat && date && fromTime && toTime) {
-      const existingBooking = await Booking.findOne({
+      // Build query - exclude the current booking if editing
+      let query = {
         seat: seat,
         date: date,
         $or: [
-          // Check if time ranges overlap
           {
             fromTime: { $lt: toTime },
             toTime: { $gt: fromTime }
           }
         ]
-      });
+      };
+      
+      // If excludeBookingId is provided, exclude that booking from conflict check
+      if (excludeBookingId) {
+        query._id = { $ne: excludeBookingId };
+      }
+      
+      const existingBooking = await Booking.findOne(query);
+      
+      console.log("Existing booking found:", existingBooking);
       
       return res.json({ 
         available: !existingBooking,
+        conflictingBookingId: existingBooking ? existingBooking._id : null,
         message: existingBooking ? "Seat already booked for this time slot" : "Seat available"
       });
     }
@@ -56,14 +68,16 @@ router.get("/check-availability", async (req, res) => {
         ]
       });
       
-      const bookedSeatNumbers = bookedSeats.flatMap(booking => booking.seat);
+      const bookedSeatNumbers = bookedSeats.flatMap(booking => 
+        Array.isArray(booking.seat) ? booking.seat : [booking.seat]
+      );
       
       return res.json({
         date: date,
         fromTime: fromTime,
         toTime: toTime,
-        bookedSeats: bookedSeatNumbers,
-        availableSeats: 32 - bookedSeatNumbers.length
+        bookedSeats: [...new Set(bookedSeatNumbers)],
+        availableSeats: 32 - new Set(bookedSeatNumbers).size
       });
     }
     
@@ -86,7 +100,7 @@ router.post("/", async (req, res) => {
     
     // Check for conflicts with ALL selected seats
     const conflictingBookings = await Booking.find({
-      seat: { $in: seat }, // Check if any of the selected seats are booked
+      seat: { $in: seat },
       date: date,
       $or: [
         {
@@ -97,10 +111,12 @@ router.post("/", async (req, res) => {
     });
     
     if (conflictingBookings.length > 0) {
-      const conflictingSeats = conflictingBookings.flatMap(b => b.seat);
+      const conflictingSeats = conflictingBookings.flatMap(b => 
+        Array.isArray(b.seat) ? b.seat : [b.seat]
+      );
       return res.status(400).json({ 
-        message: `Seat(s) ${conflictingSeats.join(", ")} already booked for this time slot!`,
-        conflictingSeats: conflictingSeats
+        message: `Seat(s) ${[...new Set(conflictingSeats)].join(", ")} already booked for this time slot!`,
+        conflictingSeats: [...new Set(conflictingSeats)]
       });
     }
     
@@ -136,11 +152,41 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// UPDATE booking
+// UPDATE booking with proper conflict checking
 router.put("/:id", async (req, res) => {
   try {
+    const { seat, date, fromTime, toTime } = req.body;
+    const bookingId = req.params.id;
+    
+    console.log("Updating booking:", { bookingId, seat, date, fromTime, toTime });
+    
+    // Check for conflicts with OTHER bookings (excluding this one)
+    const conflictingBookings = await Booking.find({
+      _id: { $ne: bookingId }, // Exclude current booking
+      seat: { $in: seat }, // Check all seats in the booking
+      date: date,
+      $or: [
+        {
+          fromTime: { $lt: toTime },
+          toTime: { $gt: fromTime }
+        }
+      ]
+    });
+    
+    console.log("Conflicting bookings found:", conflictingBookings.length);
+    
+    if (conflictingBookings.length > 0) {
+      const conflictingSeats = conflictingBookings.flatMap(b => 
+        Array.isArray(b.seat) ? b.seat : [b.seat]
+      );
+      return res.status(400).json({ 
+        message: `Seat(s) ${[...new Set(conflictingSeats)].join(", ")} already booked for this time slot!`,
+        conflictingSeats: [...new Set(conflictingSeats)]
+      });
+    }
+    
     const updatedBooking = await Booking.findByIdAndUpdate(
-      req.params.id,
+      bookingId,
       req.body,
       { new: true }
     );
@@ -150,6 +196,7 @@ router.put("/:id", async (req, res) => {
       booking: updatedBooking
     });
   } catch (err) {
+    console.error("Error updating booking:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -164,10 +211,10 @@ router.get("/my-bookings/:studentId", async (req, res) => {
     const bookings = await Booking.find({ 
       studentId: studentId,
       $or: [
-        { date: { $gt: currentDate } }, // Future dates
+        { date: { $gt: currentDate } },
         { 
           date: currentDate,
-          toTime: { $gt: currentTime } // Today but not expired
+          toTime: { $gt: currentTime }
         }
       ]
     }).sort({ date: 1, fromTime: 1 });

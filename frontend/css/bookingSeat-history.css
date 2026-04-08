@@ -779,3 +779,73 @@ select.form-input option {
     visibility: hidden;
   }
 }
+
+
+/* ========== CUSTOM COLOR CHANGES ========== */
+
+/* 1. From Time Field - Red/Black Text Color */
+#editFromTime {
+  color: #DC2626 !important;
+  font-weight: 600 !important;
+}
+
+/* For read-only from time (today's bookings) */
+#editFromTime[readonly] {
+  color: #DC2626 !important;
+  background-color: #0F172A !important;
+  font-weight: 700 !important;
+  border-color: #DC2626 !important;
+}
+
+/* If you prefer BLACK instead of RED, comment the above and uncomment below */
+/*
+#editFromTime {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+#editFromTime[readonly] {
+  color: #000000 !important;
+  background-color: #f3f4f6 !important;
+  font-weight: 700 !important;
+  border-color: #9CA3AF !important;
+}
+*/
+
+/* 2. Update Time Only Button - Blue */
+.btn-save-drawer {
+  background: linear-gradient(135deg, #3B82F6, #2563EB) !important;
+  color: white !important;
+}
+
+.btn-save-drawer:hover {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* 3. Drawer Close Button - Sky Blue */
+.drawer-close {
+  color: #38BDF8 !important;
+  font-size: 24px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.drawer-close:hover {
+  color: #0EA5E9 !important;
+  background-color: rgba(56, 189, 248, 0.2) !important;
+  border-radius: 50%;
+  transform: scale(1.1);
+}
+
+/* 4. Optional: Cancel button styling (keeping original) */
+.btn-cancel-drawer {
+  background: #475569 !important;
+  color: white !important;
+}
+
+.btn-cancel-drawer:hover {
+  background: #334155 !important;
+  transform: translateY(-2px);
+}
