@@ -195,7 +195,23 @@ function displayUserBookings(bookings) {
     return;
   }
   
-  const sortedBookings = [...bookings].reverse();
+  // Sort by date (NEWEST FIRST) - Simple way
+  const sortedBookings = [...bookings].sort((a, b) => {
+    // First compare by date
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    
+    if (dateA > dateB) return -1;  // Newer dates first
+    if (dateA < dateB) return 1;
+    
+    // If same date, compare by time
+    const timeA = a.fromTime;
+    const timeB = b.fromTime;
+    if (timeA > timeB) return -1;
+    if (timeA < timeB) return 1;
+    
+    return 0;
+  });
   
   tableBody.innerHTML = sortedBookings.map(booking => {
     const status = getBookingStatus(booking);
@@ -222,7 +238,6 @@ function displayUserBookings(bookings) {
     `;
   }).join('');
 }
-
 // Get booking status
 function getBookingStatus(booking) {
   if (booking.status === 'cancelled') return 'cancelled';

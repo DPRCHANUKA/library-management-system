@@ -91,74 +91,107 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentHour = now.getHours();
     let currentMinute = now.getMinutes();
     
-    if (currentMinute > 0 && currentMinute <= 30) {
+    // Round to next 30 minutes
+    if (currentMinute <= 30 && currentMinute > 0) {
       currentMinute = 30;
     } else if (currentMinute > 30) {
       currentHour += 1;
       currentMinute = 0;
+    } else if (currentMinute === 0) {
+      currentMinute = 30;
     }
     
-    // Don't exceed 6 PM
-    if (currentHour >= 18) {
-      currentHour = 17;
-      currentMinute = 30;
+    // Don't exceed 7 PM (19:00)
+    if (currentHour >= 19) {
+      currentHour = 19;
+      currentMinute = 0;
+    }
+    
+    // If after 7 PM, show error message
+    if (currentHour >= 19) {
+      return null;
     }
     
     return `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
   }
 
-  // Function to set from time as read-only and fixed to current time
+  // Function to set from time based on selected date
   function setFixedFromTime() {
     const selectedDate = dateInput.value;
     const todayDate = new Date().toISOString().split('T')[0];
     
     if (selectedDate === todayDate) {
-      // For today, set from time to current rounded time (read-only)
+      // For today, set from time to current rounded time
       const currentTimeFormatted = getCurrentRoundedTime();
+      
+      if (currentTimeFormatted === null) {
+        // After 7 PM - cannot book for today
+        fromTimeInput.value = "";
+        fromTimeInput.readOnly = true;
+        fromTimeInput.style.backgroundColor = '#f3f4f6';
+        fromTimeInput.style.cursor = 'not-allowed';
+        fromTimeInput.placeholder = "No slots available after 7 PM";
+        
+        toTimeInput.value = "";
+        toTimeInput.readOnly = true;
+        toTimeInput.style.backgroundColor = '#f3f4f6';
+        toTimeInput.style.cursor = 'not-allowed';
+        
+        let timeWarning = document.getElementById('timeWarning');
+        if (!timeWarning) {
+          const warningDiv = document.createElement('div');
+          warningDiv.id = 'timeWarning';
+          warningDiv.className = 'text-red-500 text-xs mt-1';
+          fromTimeInput.parentNode.appendChild(warningDiv);
+          timeWarning = warningDiv;
+        }
+        timeWarning.textContent = '⚠️ Library closes at 7:00 PM. No more bookings available for today.';
+        return;
+      }
+      
       fromTimeInput.value = currentTimeFormatted;
       fromTimeInput.readOnly = true;
       fromTimeInput.style.backgroundColor = '#f3f4f6';
       fromTimeInput.style.cursor = 'not-allowed';
       
-      // Set min/max for to time
+      // Set min for to time
       toTimeInput.min = currentTimeFormatted;
-      toTimeInput.max = "18:00";
+      toTimeInput.max = "19:00";
       
-      // Calculate max allowed to time (4 hours from from time)
+      // Calculate max allowed to time (4 hours from from time, but not after 7 PM)
       updateToTimeConstraints();
       
-      // Show warning message
+      // Show info message
       let timeWarning = document.getElementById('timeWarning');
       if (!timeWarning) {
         const warningDiv = document.createElement('div');
         warningDiv.id = 'timeWarning';
-        warningDiv.className = 'text-yellow-500 text-xs mt-1';
+        warningDiv.className = 'text-blue-500 text-xs mt-1';
         fromTimeInput.parentNode.appendChild(warningDiv);
         timeWarning = warningDiv;
       }
-      const now = new Date();
-      timeWarning.textContent = `⚠️ Start time is fixed to current time (${currentTimeFormatted}). You can only change end time.`;
+      timeWarning.textContent = `ℹ️ Start time is fixed to current time (${currentTimeFormatted}). Library hours: 8:00 AM - 7:00 PM.`;
     } else {
-      // For future dates, allow from time selection (8 AM to 6 PM)
+      // For future dates, allow from time selection (8 AM to 7 PM)
       fromTimeInput.readOnly = false;
       fromTimeInput.style.backgroundColor = '';
       fromTimeInput.style.cursor = 'pointer';
       fromTimeInput.min = "08:00";
-      fromTimeInput.max = "18:00";
+      fromTimeInput.max = "19:00";
       
       if (!fromTimeInput.value || fromTimeInput.value < "08:00") {
         fromTimeInput.value = "08:00";
       }
       
       toTimeInput.min = fromTimeInput.value;
-      toTimeInput.max = "18:00";
+      toTimeInput.max = "19:00";
       
       const timeWarning = document.getElementById('timeWarning');
       if (timeWarning) timeWarning.remove();
     }
   }
 
-  // Function to update to time constraints (max 4 hours from from time)
+  // Function to update to time constraints (max 4 hours from from time, max 7 PM)
   function updateToTimeConstraints() {
     if (fromTimeInput.value) {
       const [fromHours, fromMinutes] = fromTimeInput.value.split(':').map(Number);
@@ -174,8 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const maxAllowedTime = `${maxHours.toString().padStart(2, '0')}:${maxMinutes.toString().padStart(2, '0')}`;
       
-      // To time cannot exceed 6 PM or max allowed time
-      const absoluteMax = maxAllowedTime < "18:00" ? maxAllowedTime : "18:00";
+      // To time cannot exceed 7 PM (19:00) or max allowed time
+      const absoluteMax = maxAllowedTime < "19:00" ? maxAllowedTime : "19:00";
       toTimeInput.max = absoluteMax;
       
       // Set default to time (30 minutes after from time, but not exceeding max)
@@ -208,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       
       const maxTimeFormatted = absoluteMax;
-      durationWarning.textContent = `⏱️ Max end time: ${maxTimeFormatted} (4 hours max) | Min duration: 30 minutes`;
+      durationWarning.textContent = `⏱️ Max end time: ${maxTimeFormatted} (4 hours max) | Min duration: 30 minutes | Library closes at 7:00 PM`;
       
       // Validate duration on to time change
       validateDuration();
@@ -238,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
         durationWarning.innerHTML = '⚠️ Maximum booking is 4 hours! Please select an earlier end time.';
         durationWarning.style.color = '#ef4444';
       } else {
-        durationWarning.innerHTML = `✅ Duration: ${Math.floor(duration / 60)}h ${duration % 60}m (Max 4 hours)`;
+        durationWarning.innerHTML = `✅ Duration: ${Math.floor(duration / 60)}h ${duration % 60}m (Max 4 hours) | Library closes at 7:00 PM`;
         durationWarning.style.color = '#10b981';
       }
     }
@@ -337,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadCurrentBookings() {
     const date = dateInput ? dateInput.value : formattedDate;
     const fromTime = fromTimeInput ? fromTimeInput.value : "08:00";
-    const toTime = toTimeInput ? toTimeInput.value : "18:00";
+    const toTime = toTimeInput ? toTimeInput.value : "19:00";
     
     if (!date || !fromTime || !toTime) return;
     
@@ -504,7 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // Validate Time with duration restrictions
+  // Validate Time with duration restrictions (8 AM to 7 PM)
   function validateTime(fromTime, toTime) {
     if (!fromTime) {
       showError('fromTimeError', '❌ Start time is required');
@@ -515,12 +548,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
     
-    const selectedDate = dateInput.value;
-    const todayDate = new Date().toISOString().split('T')[0];
-    
-    // Check operating hours
-    if (fromTime < "08:00" || toTime > "18:00") {
-      showError('toTimeError', '❌ Booking hours are 8:00 AM to 6:00 PM only');
+    // Check operating hours (8 AM to 7 PM)
+    if (fromTime < "08:00" || toTime > "19:00") {
+      showError('toTimeError', '❌ Booking hours are 8:00 AM to 7:00 PM only');
       return false;
     }
     
