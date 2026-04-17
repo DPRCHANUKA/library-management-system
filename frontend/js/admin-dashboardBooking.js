@@ -6,6 +6,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Global variable to store all bookings for search
 let allBookings = [];
+let currentFilter = 'all'; // Track current filter
+
+// Function to calculate booking status based on current date and time
+function getBookingStatus(booking) {
+  const now = new Date();
+  const bookingDate = new Date(booking.date);
+  const fromTime = booking.fromTime;
+  const toTime = booking.toTime;
+  
+  // Parse booking time
+  const [fromHour, fromMinute] = fromTime.split(':').map(Number);
+  const [toHour, toMinute] = toTime.split(':').map(Number);
+  
+  // Set booking start and end datetime
+  const bookingStart = new Date(bookingDate);
+  bookingStart.setHours(fromHour, fromMinute, 0, 0);
+  
+  const bookingEnd = new Date(bookingDate);
+  bookingEnd.setHours(toHour, toMinute, 0, 0);
+  
+  // Check if booking is for future date or future time today
+  if (bookingStart > now) {
+    return { status: 'upcoming', text: 'Upcoming', class: 'status-upcoming' };
+  }
+  
+  // Check if booking is currently active
+  if (now >= bookingStart && now <= bookingEnd) {
+    return { status: 'active', text: 'Active', class: 'status-active' };
+  }
+  
+  // Check if booking has expired
+  if (now > bookingEnd) {
+    return { status: 'expired', text: 'Expired', class: 'status-expired' };
+  }
+  
+  return { status: 'unknown', text: 'Unknown', class: 'status-unknown' };
+}
 
 // Validation functions for admin drawer
 function validateAdminName(name) {
@@ -108,8 +145,8 @@ async function loadDashboardData() {
     // Calculate statistics
     updateStatistics(bookings);
     
-    // Display bookings in table
-    displayBookings(bookings);
+    // Display bookings in table (apply current filter)
+    applyCurrentFilter();
     
     // Update last updated time
     updateLastUpdated();
@@ -120,34 +157,70 @@ async function loadDashboardData() {
   }
 }
 
-// Function to update statistics
-function updateStatistics(bookings) {
-  const totalSeats = 32;
-  const bookedSeats = new Set();
-  const today = new Date().toLocaleDateString();
+// Function to apply current filter
+function applyCurrentFilter() {
+  if (currentFilter === 'all') {
+    displayBookings(allBookings);
+  } else {
+    const filtered = allBookings.filter(booking => {
+      const status = getBookingStatus(booking);
+      return status.status === currentFilter;
+    });
+    displayBookings(filtered);
+  }
+}
+
+// Function to filter by status
+function filterByStatus(status) {
+  currentFilter = status;
   
-  // Count booked seats
-  bookings.forEach(booking => {
-    if (booking.seat && Array.isArray(booking.seat)) {
-      booking.seat.forEach(seat => bookedSeats.add(seat));
-    } else if (booking.seat) {
-      bookedSeats.add(booking.seat);
+  // Update active button state
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.getAttribute('data-status') === status) {
+      btn.classList.add('active');
     }
   });
   
-  const bookedCount = bookedSeats.size;
-  const availableCount = totalSeats - bookedCount;
+  // Apply filter
+  applyCurrentFilter();
+}
+
+// Function to update statistics
+// Function to update statistics - ONLY COUNT CURRENTLY ACTIVE SEATS
+function updateStatistics(bookings) {
+  const totalSeats = 32;
+  const today = new Date().toLocaleDateString();
   
-  // Count today's bookings
+  // Track seats that are ACTIVE right now (not expired or upcoming)
+  const activeSeats = new Set();
+  
+  bookings.forEach(booking => {
+    const status = getBookingStatus(booking);
+    
+    // ONLY add seats that are currently ACTIVE
+    if (status.status === 'active') {
+      if (booking.seat && Array.isArray(booking.seat)) {
+        booking.seat.forEach(seat => activeSeats.add(seat));
+      } else if (booking.seat) {
+        activeSeats.add(booking.seat);
+      }
+    }
+  });
+  
+  const currentlyBookedCount = activeSeats.size;
+  const currentlyAvailableCount = totalSeats - currentlyBookedCount;
+  
+  // Count today's bookings (all bookings for today, any status)
   const todayBookings = bookings.filter(booking => {
     const bookingDate = new Date(booking.date).toLocaleDateString();
     return bookingDate === today;
   }).length;
   
-  // Update DOM
+  // Update DOM with REAL-TIME data
   document.getElementById('totalSeats').textContent = totalSeats;
-  document.getElementById('availableSeats').textContent = availableCount;
-  document.getElementById('bookedSeats').textContent = bookedCount;
+  document.getElementById('availableSeats').textContent = currentlyAvailableCount;
+  document.getElementById('bookedSeats').textContent = currentlyBookedCount;
   document.getElementById('todayBookings').textContent = todayBookings;
 }
 
@@ -158,7 +231,7 @@ function displayBookings(bookings) {
   if (!bookings || bookings.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="6" class="empty-state">
+        <td colspan="7" class="empty-state">
           <div class="icon">📭</div>
           No bookings found
         </td>
@@ -170,21 +243,23 @@ function displayBookings(bookings) {
   // Sort by date (newest first)
   const sortedBookings = [...bookings].reverse();
   
-  tableBody.innerHTML = sortedBookings.map(booking => `
-    <tr>
-      <td>${escapeHtml(booking.studentId || 'N/A')}</td>
-      <td>${escapeHtml(booking.name || 'N/A')}</td>
-      <td><strong>${formatSeats(booking.seat)}</strong></td>
-      <td>${booking.date || 'N/A'}</td>
-      <td>${booking.fromTime || 'N/A'} - ${booking.toTime || 'N/A'}</td>
-      <td><span class="status-badge">Active</span></td>
-
-       <td>
-      <button onclick="editBooking('${booking._id}')" class="btn-edit">✏️</button>
-      <button onclick="deleteBooking('${booking._id}')" class="btn-delete">🗑️</button>
-    </td>
-    </tr>
-  `).join('');
+  tableBody.innerHTML = sortedBookings.map(booking => {
+    const statusInfo = getBookingStatus(booking);
+    return `
+      <tr>
+        <td>${escapeHtml(booking.studentId || 'N/A')}</td>
+        <td>${escapeHtml(booking.name || 'N/A')}</td>
+        <td><strong>${formatSeats(booking.seat)}</strong></td>
+        <td>${booking.date || 'N/A'}</td>
+        <td>${booking.fromTime || 'N/A'} - ${booking.toTime || 'N/A'}</td>
+        <td><span class="status-badge ${statusInfo.class}">${statusInfo.text}</span></td>
+        <td class="action-buttons">
+          <button onclick="editBooking('${booking._id}')" class="btn-edit" title="Edit Booking">✏️</button>
+          <button onclick="deleteBooking('${booking._id}')" class="btn-delete" title="Delete Booking">🗑️</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 // Helper function to format seats
@@ -200,12 +275,22 @@ function formatSeats(seats) {
 function searchBookings() {
   const searchTerm = document.getElementById('searchInput').value.toLowerCase();
   
+  let bookingsToSearch = allBookings;
+  
+  // If filter is active, search within filtered results
+  if (currentFilter !== 'all') {
+    bookingsToSearch = allBookings.filter(booking => {
+      const status = getBookingStatus(booking);
+      return status.status === currentFilter;
+    });
+  }
+  
   if (!searchTerm) {
-    displayBookings(allBookings);
+    displayBookings(bookingsToSearch);
     return;
   }
   
-  const filtered = allBookings.filter(booking => 
+  const filtered = bookingsToSearch.filter(booking => 
     booking.studentId?.toLowerCase().includes(searchTerm) ||
     booking.name?.toLowerCase().includes(searchTerm)
   );
@@ -238,7 +323,7 @@ function showLoading() {
   if (tableBody && tableBody.children.length === 0) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="6" class="loading-text">Loading bookings...</td>
+        <td colspan="7" class="loading-text">Loading bookings...</td>
       </tr>
     `;
   }
@@ -249,7 +334,7 @@ function showError(message) {
   const tableBody = document.getElementById('bookingsTableBody');
   tableBody.innerHTML = `
     <tr>
-      <td colspan="6" class="empty-state">
+      <td colspan="7" class="empty-state">
         <div class="icon">⚠️</div>
         ${message}
       </td>
@@ -265,7 +350,7 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-//delete booking 
+// Delete booking 
 async function deleteBooking(id) {
   if (!confirm("Are you sure you want to delete this booking?")) return;
 
@@ -284,8 +369,7 @@ async function deleteBooking(id) {
   }
 }
 
-
-//edit booking for admin drawer
+// Edit booking for admin drawer
 function editBooking(id) {
   const booking = allBookings.find(b => b._id === id);
   if (!booking) return;
@@ -298,19 +382,38 @@ function editBooking(id) {
   document.getElementById("editFromTime").value = booking.fromTime;
   document.getElementById("editToTime").value = booking.toTime;
 
-
   // Remove the negative translation class
- document.getElementById("admin-drawer")
- .classList.remove("-translate-x-full");
+  document.getElementById("admin-drawer").classList.remove("-translate-x-full");
 }
 
-//close admin drawer
+// Close admin drawer
 function closeAdminDrawer() {
-  document.getElementById("admin-drawer")
-  .classList.add("-translate-x-full");
+  document.getElementById("admin-drawer").classList.add("-translate-x-full");
 }
 
+// Add status filter buttons to the UI
+function addStatusFilters() {
+  const tableHeader = document.querySelector('.table-header');
+  if (tableHeader && !document.querySelector('.status-filters')) {
+    const filterDiv = document.createElement('div');
+    filterDiv.className = 'status-filters';
+    filterDiv.innerHTML = `
+      <button class="filter-btn active" data-status="all" onclick="filterByStatus('all')">📊 All</button>
+      <button class="filter-btn" data-status="active" onclick="filterByStatus('active')">🟢 Active</button>
+      <button class="filter-btn" data-status="upcoming" onclick="filterByStatus('upcoming')">🟡 Upcoming</button>
+      <button class="filter-btn" data-status="expired" onclick="filterByStatus('expired')">🔴 Expired</button>
+    `;
+    tableHeader.appendChild(filterDiv);
+  }
+}
+
+// Initialize filters after DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
+  // Add status filters
+  setTimeout(() => {
+    addStatusFilters();
+  }, 100);
+  
   const form = document.getElementById("adminEditForm");
 
   // Add real-time validation for admin form fields
@@ -503,6 +606,271 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+// Function to download bookings as PDF
+async function downloadPDF() {
+  try {
+    // Show loading message
+    const downloadBtn = document.querySelector('.btn-download');
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = '⏳ Generating PDF...';
+    downloadBtn.disabled = true;
+    
+    // Get current filtered/sorted bookings for PDF
+    let bookingsToExport = allBookings;
+    
+    // Apply current filter if not 'all'
+    if (currentFilter !== 'all') {
+      bookingsToExport = allBookings.filter(booking => {
+        const status = getBookingStatus(booking);
+        return status.status === currentFilter;
+      });
+    }
+    
+    // Apply current search if any
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    if (searchTerm) {
+      bookingsToExport = bookingsToExport.filter(booking => 
+        booking.studentId?.toLowerCase().includes(searchTerm) ||
+        booking.name?.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // Sort by date (newest first)
+    const sortedBookings = [...bookingsToExport].reverse();
+    
+    // Get current date and time for report
+    const now = new Date();
+    const reportDate = now.toLocaleDateString();
+    const reportTime = now.toLocaleTimeString();
+    
+    // Get statistics
+    const totalSeats = document.getElementById('totalSeats').textContent;
+    const availableSeats = document.getElementById('availableSeats').textContent;
+    const bookedSeats = document.getElementById('bookedSeats').textContent;
+    const todayBookings = document.getElementById('todayBookings').textContent;
+    
+    // Create HTML content for PDF
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Library Bookings Report</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #333;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3B82F6;
+          }
+          .header h1 {
+            color: #3B82F6;
+            margin: 0;
+          }
+          .header p {
+            color: #666;
+            margin: 5px 0;
+          }
+          .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+          }
+          .stat-box {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #3B82F6;
+          }
+          .stat-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+          }
+          .stat-box p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: #3B82F6;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          th {
+            background: #3B82F6;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+          }
+          td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+          }
+          .status-active {
+            color: #10B981;
+            font-weight: bold;
+          }
+          .status-upcoming {
+            color: #F59E0B;
+            font-weight: bold;
+          }
+          .status-expired {
+            color: #EF4444;
+            font-weight: bold;
+          }
+          .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+          }
+          .filter-info {
+            background: #f9fafb;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 12px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>📚 Library Booking System - Admin Report</h1>
+          <p>Generated on: ${reportDate} at ${reportTime}</p>
+        </div>
+        
+        <div class="stats">
+          <div class="stat-box">
+            <h3>Total Seats</h3>
+            <p>${totalSeats}</p>
+          </div>
+          <div class="stat-box">
+            <h3>Available Now</h3>
+            <p>${availableSeats}</p>
+          </div>
+          <div class="stat-box">
+            <h3>Booked Seats</h3>
+            <p>${bookedSeats}</p>
+          </div>
+          <div class="stat-box">
+            <h3>Today's Bookings</h3>
+            <p>${todayBookings}</p>
+          </div>
+        </div>
+        
+        ${searchTerm ? `<div class="filter-info">🔍 Filtered by: "${searchTerm}"</div>` : ''}
+        ${currentFilter !== 'all' ? `<div class="filter-info">🏷️ Status Filter: ${currentFilter.toUpperCase()}</div>` : ''}
+        
+        <h3>Booking Details (${sortedBookings.length} records)</h3>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Seat(s)</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sortedBookings.map(booking => {
+              const statusInfo = getBookingStatus(booking);
+              return `
+                <tr>
+                  <td>${escapeHtml(booking.studentId || 'N/A')}</td>
+                  <td>${escapeHtml(booking.name || 'N/A')}</td>
+                  <td>${formatSeats(booking.seat)}</td>
+                  <td>${booking.date || 'N/A'}</td>
+                  <td>${booking.fromTime || 'N/A'} - ${booking.toTime || 'N/A'}</td>
+                  <td class="status-${statusInfo.status}">${statusInfo.text}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+        
+        <div class="footer">
+          <p>This is a system-generated report from Library Booking System</p>
+          <p>© ${new Date().getFullYear()} LibraryHub - All Rights Reserved</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Use html2pdf library to convert HTML to PDF
+    if (typeof html2pdf === 'undefined') {
+      // Load html2pdf script dynamically
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      script.onload = () => {
+        generatePDF(htmlContent, downloadBtn, originalText);
+      };
+      document.head.appendChild(script);
+    } else {
+      generatePDF(htmlContent, downloadBtn, originalText);
+    }
+    
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('Failed to generate PDF. Please try again.');
+    const downloadBtn = document.querySelector('.btn-download');
+    if (downloadBtn) {
+      downloadBtn.innerHTML = '📄 Download PDF';
+      downloadBtn.disabled = false;
+    }
+  }
+}
+
+// Helper function to generate PDF
+function generatePDF(htmlContent, downloadBtn, originalText) {
+  const element = document.createElement('div');
+  element.innerHTML = htmlContent;
+  
+  const opt = {
+    margin: [0.5, 0.5, 0.5, 0.5],
+    filename: `library_bookings_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, letterRendering: true },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+  };
+  
+  html2pdf().set(opt).from(element).save().then(() => {
+    // Reset button
+    if (downloadBtn) {
+      downloadBtn.innerHTML = originalText;
+      downloadBtn.disabled = false;
+    }
+  }).catch((error) => {
+    console.error('PDF generation error:', error);
+    alert('Error generating PDF. Please try again.');
+    if (downloadBtn) {
+      downloadBtn.innerHTML = originalText;
+      downloadBtn.disabled = false;
+    }
+  });
+}
+
 // Make functions globally available
 window.refreshData = refreshData;
 window.searchBookings = searchBookings;
+window.filterByStatus = filterByStatus;
+window.editBooking = editBooking;
+window.deleteBooking = deleteBooking;
+window.closeAdminDrawer = closeAdminDrawer;
+window.downloadPDF = downloadPDF;
