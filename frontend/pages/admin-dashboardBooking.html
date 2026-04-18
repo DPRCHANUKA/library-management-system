@@ -222,5 +222,55 @@
     </button>
   </form>
 </div>
+<!-- chat bot -->
+<link rel="stylesheet" href="../css/chatbot.css">
+<div id="chatbot-root">
+    <button id="chatToggle" class="chat-toggle">
+        <span class="chat-icon">💬</span>
+        <span class="close-icon" style="display:none;">✕</span>
+    </button>
+
+    <div id="chatContainer" class="chat-container" style="display: none;">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">🤖</div>
+                <div>
+                    <h3>Library Assistant</h3>
+                    <p id="greetingMessage">Welcome! How can I help you today?</p>
+                </div>
+            </div>
+            <button id="closeChat" class="close-chat">✕</button>
+        </div>
+
+        <div id="chatMessages" class="chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    👋 Hello! I'm your Library Assistant. <br><br>
+                    I can help you with:
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li>📖 Finding books and resources</li>
+                        <li>🪑 Seat booking information</li>
+                        <li>⏰ Library hours and location</li>
+                        <li>📚 Borrowing and returning books</li>
+                        <li>💳 Library membership</li>
+                        <li>❓ Any other library-related questions</li>
+                    </ul>
+                    How can I assist you today?
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <input type="text" id="chatInput" placeholder="Type your message here..." class="chat-input">
+            <button id="sendMessage" class="send-button">📤 Send</button>
+        </div>
+        
+        <div class="chat-footer">
+            <p>Powered by LibraryHub Assistant</p>
+        </div>
+    </div>
+</div>
+
+<script src="../js/chatbot.js"></script>
 </body>
 </html>
