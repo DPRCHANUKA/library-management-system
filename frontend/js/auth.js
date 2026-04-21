@@ -39,6 +39,7 @@ function updateNavbar(prefix = "") {
       <a href="${homeLink}">Home</a>
       <a href="${pagesPrefix}discover.html">Discover Books</a>
       <a href="${pagesPrefix}bookingseats.html">🪑 Book a Seat</a>
+      <a href="${pagesPrefix}reviews.html">📝 Review and Donation</a>
       ${dashboardLink}
       <a href="#" id="signOutLink" class="nav-btn-outline">Sign Out</a>
     `;
@@ -49,6 +50,7 @@ function updateNavbar(prefix = "") {
   } else {
     navLinks.innerHTML = `
       <a href="${homeLink}">Home</a>
+      <a href="${pagesPrefix}reviews.html">📝 Review and Donation</a>
       <a href="${pagesPrefix}login.html" class="nav-btn-outline">Sign In</a>
       <a href="${pagesPrefix}register.html" class="nav-btn">Sign Up</a>
     `;

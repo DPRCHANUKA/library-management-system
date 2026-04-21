@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LibraryHub Reviews - Read testimonials from scholars and readers. Discover the Book Loop community.">
+  <title>Reviews - LibraryHub</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/reviews.css">
+  <link rel="stylesheet" href="../css/footer.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="reviews-page">
+
+    <!-- Hero Section -->
+    <section class="reviews-hero">
+      <div class="reviews-hero-text">
+        <h1>Share Knowledge,<br>Request Books,<br>Change Lives</h1>
+        <p>The definitive decentralized archive for scholarly exchange. Request rare editions, donate your collection, and join a global network of digital archivists.</p>
+        <div class="reviews-hero-buttons">
+          <button class="btn-request" id="reviewAndDonationBtn">Review and Donation</button>
+        </div>
+      </div>
+      <div class="reviews-hero-image">
+        <div class="hero-img-wrap">
+          <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&h=400&fit=crop" alt="Library books">
+          <div class="hero-badge">📚 Active Circulation 12,482 Vol.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="reviews-stats">
+      <div class="reviews-stat-card">
+        <div class="stat-emoji">❤️</div>
+        <div class="stat-num">45k+</div>
+        <div class="stat-desc">Books Donated</div>
+      </div>
+      <div class="reviews-stat-card">
+        <div class="stat-emoji">✅</div>
+        <div class="stat-num">32k+</div>
+        <div class="stat-desc">Requests Fulfilled</div>
+      </div>
+      <div class="reviews-stat-card">
+        <div class="stat-emoji">👥</div>
+        <div class="stat-num">150k+</div>
+        <div class="stat-desc">Active Users</div>
+      </div>
+    </section>
+
+    <!-- Archive Feed -->
+    <section class="reviews-feed">
+      <h2>The Archive Feed</h2>
+      <div class="reviews-feed-grid">
+        <div class="feed-featured">
+          <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&h=400&fit=crop" alt="Library interior">
+          <div class="feed-featured-body">
+            <span class="feed-tag">Featured Collective</span>
+            <h3>Oxford Scholars Circle</h3>
+            <p>Join the most prestigious circle of book exchanges focused on rare 18th-century manuscripts.</p>
+          </div>
+        </div>
+        <div class="feed-side">
+          <div class="feed-side-card">
+            <div class="feed-card-header">
+              <span class="feed-card-icon">📖</span>
+              <div>
+                <div class="feed-card-title">Reading Queue</div>
+              </div>
+            </div>
+            <div class="feed-card-desc">Manage your upcoming scholarly pursuits with our precision queue system.</div>
+          </div>
+          <div class="feed-side-card">
+            <div class="feed-card-header">
+              <span class="feed-card-icon">🔒</span>
+              <div>
+                <div class="feed-card-title">Secure Exchange</div>
+              </div>
+            </div>
+            <div class="feed-card-desc">Encrypted tracking for all physical shipments and peer-to-peer handovers.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials / Reviews -->
+    <section class="reviews-testimonials">
+      <div class="reviews-testimonials-inner">
+        <h2>Voice of the Archives</h2>
+        <p class="reviews-subtitle">From university professors to passionate readers.</p>
+
+        <div class="reviews-testimonial-grid">
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar"></div>
+              <div>
+                <div class="testimonial-name">Dr. Aris Thorne</div>
+                <div class="testimonial-role">Philosophy Dept. Head</div>
+              </div>
+            </div>
+            <p class="testimonial-quote">"Book Loop has revolutionized how our department manages resource scarcity. The Archivist interface is pure precision."</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar"></div>
+              <div>
+                <div class="testimonial-name">Sarah Jenkins</div>
+                <div class="testimonial-role">Literature Enthusiast</div>
+              </div>
+            </div>
+            <p class="testimonial-quote">"Finding a first edition of Baldwin's work seemed impossible until I joined the Loop. A truly life-changing community."</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar"></div>
+              <div>
+                <div class="testimonial-name">Marcus Vane</div>
+                <div class="testimonial-role">Digital Archivist</div>
+              </div>
+            </div>
+            <p class="testimonial-quote">"The UI is a dream. It doesn't feel like a website, it feels like a workstation for the future of knowledge sharing."</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page Footer -->
+    <footer class="reviews-footer">
+      <div>© 2026 Book Loop Archive. All Rights Reserved.</div>
+      <div class="reviews-footer-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Protocol</a>
+        <a href="#">Scholar Guidelines</a>
+        <a href="#">API Documentation</a>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/reviews.js"></script>
+
+  <!-- Chatbot Integration -->
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <div id="chatbot-root">
+    <button id="chatToggle" class="chat-toggle">
+      <span class="chat-icon">💬</span>
+      <span class="close-icon" style="display:none;">✕</span>
+    </button>
+    <div id="chatContainer" class="chat-container" style="display: none;">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <h3>Library Assistant</h3>
+            <p id="greetingMessage">Welcome! How can I help you today?</p>
+          </div>
+        </div>
+        <button id="closeChat" class="close-chat">✕</button>
+      </div>
+      <div id="chatMessages" class="chat-messages">
+        <div class="message bot-message">
+          <div class="message-content">
+            👋 Hello! I'm your Library Assistant. <br><br>
+            I can help you with:
+            <ul style="margin-top: 8px; margin-left: 20px;">
+              <li>📖 Finding books and resources</li>
+              <li>🪑 Seat booking information</li>
+              <li>⏰ Library hours and location</li>
+              <li>📚 Borrowing and returning books</li>
+              <li>💳 Library membership</li>
+              <li>❓ Any other library-related questions</li>
+            </ul>
+            How can I assist you today?
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <input type="text" id="chatInput" placeholder="Type your message here..." class="chat-input">
+        <button id="sendMessage" class="send-button">📤 Send</button>
+      </div>
+      <div class="chat-footer">
+        <p>Powered by LibraryHub Assistant</p>
+      </div>
+    </div>
+  </div>
+  <script src="../js/chatbot.js"></script>
+</body>
+</html>

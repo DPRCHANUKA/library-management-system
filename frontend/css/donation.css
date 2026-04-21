@@ -1,0 +1,388 @@
+/* ===== DONATION PAGE STYLES ===== */
+
+.donation-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Form Card */
+.donation-form-card {
+  background: var(--card-bg, #1a1a2e);
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  position: sticky;
+  top: 6rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.donation-form-card .form-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.donation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.donation-form input,
+.donation-form textarea,
+.donation-form select {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.donation-form input::placeholder,
+.donation-form textarea::placeholder {
+  color: rgba(255,255,255,0.35);
+}
+
+.donation-form input:focus,
+.donation-form textarea:focus,
+.donation-form select:focus {
+  border-color: var(--primary, #6c63ff);
+}
+
+.donation-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.donation-form select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.donation-form .form-error {
+  color: #f87171;
+  font-size: 0.75rem;
+  margin-top: -0.5rem;
+}
+
+.donation-submit-btn {
+  width: 100%;
+  background: var(--primary, #6c63ff);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.donation-submit-btn:hover {
+  background: var(--primary-hover, #5a52d5);
+}
+
+.donation-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Inventory Card */
+.donation-inventory-card {
+  background: var(--card-bg, #1a1a2e);
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.inventory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.inventory-header .inv-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.inventory-count {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+}
+
+/* Book Grid */
+.donation-book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+
+.donation-book-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s;
+}
+
+.donation-book-card:hover {
+  border-color: rgba(255,255,255,0.2);
+}
+
+.donation-book-card .book-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
+}
+
+.donation-book-card .book-img-placeholder {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.75rem;
+}
+
+.donation-book-card .book-img-placeholder .placeholder-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+.donation-book-card .book-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.donation-book-card .book-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.type-badge {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.2rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.type-badge.donation {
+  background: rgba(16,185,129,0.15);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+.type-badge.request {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+.donation-book-card .book-author {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.donation-book-card .book-desc {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.donation-book-card .contact-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.contact-box .contact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.contact-box .contact-row + .contact-row {
+  margin-top: 0.35rem;
+}
+
+.contact-box .contact-label {
+  color: rgba(255,255,255,0.35);
+  font-weight: 500;
+}
+
+.contact-box .contact-value {
+  color: rgba(255,255,255,0.7);
+  font-family: monospace;
+}
+
+.donation-book-card .card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.card-actions .btn-edit,
+.card-actions .btn-delete {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.card-actions .btn-edit {
+  background: var(--primary, #6c63ff);
+  color: #fff;
+}
+
+.card-actions .btn-edit:hover {
+  background: var(--primary-hover, #5a52d5);
+}
+
+.card-actions .btn-delete {
+  background: rgba(239,68,68,0.1);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+.card-actions .btn-delete:hover {
+  background: rgba(239,68,68,0.2);
+}
+
+/* Edit inline form */
+.donation-book-card .edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.donation-book-card .edit-form input,
+.donation-book-card .edit-form textarea,
+.donation-book-card .edit-form select {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.donation-book-card .edit-form .edit-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.donation-book-card .edit-form .btn-save {
+  flex: 1;
+  background: var(--primary, #6c63ff);
+  color: #fff;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.donation-book-card .edit-form .btn-cancel {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.donation-empty {
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  padding: 4rem 0;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .donation-layout {
+    grid-template-columns: 1fr;
+  }
+  .donation-form-card {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .donation-book-grid {
+    grid-template-columns: 1fr;
+  }
+}
