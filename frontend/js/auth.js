@@ -17,14 +17,14 @@ function isAdmin() {
 function signOut(prefix = "") {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = "" + (prefix ? prefix + "index.html" : "/");
+    window.location.href = prefix ? prefix + "index.html" : "./index.html";
 }
 
 function updateNavbar(prefix = "") {
   const navLinks = document.getElementById("navLinks");
   if (!navLinks) return;
 
-  const homeLink = prefix ? prefix + "index.html" : "/";
+  const homeLink = prefix ? prefix + "index.html" : "./index.html";
   const pagesPrefix = prefix ? "" : "pages/";
 
   if (isLoggedIn()) {
