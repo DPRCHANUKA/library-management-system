@@ -40,6 +40,7 @@ function updateNavbar(prefix = "") {
       <a href="${pagesPrefix}discover.html">Discover Books</a>
       <a href="${pagesPrefix}bookingseats.html">🪑 Book a Seat</a>
       <a href="${pagesPrefix}reviews.html">📝 Review and Donation</a>
+      <a href="/study-group-app/">👥 Study Group</a>
       ${dashboardLink}
       <a href="#" id="signOutLink" class="nav-btn-outline">Sign Out</a>
     `;

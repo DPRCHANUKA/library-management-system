@@ -4,8 +4,12 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema({
   studentId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
+  email: { type: String },
   password: { type: String, required: true },
   isAdmin: { type: Boolean, default: false },
+  role: { type: String, enum: ['student', 'admin', 'senior'], default: 'student' },
+  module: { type: String, default: null },
+  isSenior: { type: Boolean, default: false },
   borrowedBooks: [{
     bookId: { type: mongoose.Schema.Types.ObjectId, ref: "Book" },
     bookedDate: Date,

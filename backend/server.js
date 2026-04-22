@@ -17,10 +17,24 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 const bookingRoutes = require("./routes/bookingRoutes");
 const authRoutes = require("./routes/authRoutes");
 const bookRoutes = require("./routes/bookRoutes");
+const groupRoutes = require("./routes/studyGroupRoutes/groupRoutes");
+const requestRoutes = require("./routes/studyGroupRoutes/requestRoutes");
+const helpRoutes = require("./routes/studyGroupRoutes/helpRoutes");
+const resourceRoutes = require("./routes/studyGroupRoutes/resourceRoutes");
+const userRoutes = require("./routes/studyGroupRoutes/userRoutes");
 
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
+app.use("/api/study-group/groups", groupRoutes);
+app.use("/api/study-group/requests", requestRoutes);
+app.use("/api/study-group/help", helpRoutes);
+app.use("/api/study-group/resources", resourceRoutes);
+app.use("/api/study-group/users", userRoutes);
+
+app.get(/^\/study-group-app(?:\/.*)?$/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/study-group-app/index.html"));
+});
 
 // Test route
 app.get("/", (req, res) => {
