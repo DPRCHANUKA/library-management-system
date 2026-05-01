@@ -17,14 +17,14 @@ function isAdmin() {
 function signOut(prefix = "") {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = "" + (prefix ? prefix + "index.html" : "/");
+    window.location.href = prefix ? prefix + "index.html" : "./index.html";
 }
 
 function updateNavbar(prefix = "") {
   const navLinks = document.getElementById("navLinks");
   if (!navLinks) return;
 
-  const homeLink = prefix ? prefix + "index.html" : "/";
+  const homeLink = prefix ? prefix + "index.html" : "./index.html";
   const pagesPrefix = prefix ? "" : "pages/";
 
   if (isLoggedIn()) {
@@ -40,6 +40,7 @@ function updateNavbar(prefix = "") {
       <a href="${pagesPrefix}discover.html">Discover Books</a>
       <a href="${pagesPrefix}bookingseats.html">🪑 Book a Seat</a>
       <a href="${pagesPrefix}study-groups.html">👥 Study Groups</a>
+      <a href="${pagesPrefix}reviews.html">📝 Review and Donation</a>
       ${dashboardLink}
       ${adminLinks}
       <a href="#" id="signOutLink" class="nav-btn-outline">Sign Out</a>
@@ -51,6 +52,7 @@ function updateNavbar(prefix = "") {
   } else {
     navLinks.innerHTML = `
       <a href="${homeLink}">Home</a>
+      <a href="${pagesPrefix}reviews.html">📝 Review and Donation</a>
       <a href="${pagesPrefix}login.html" class="nav-btn-outline">Sign In</a>
       <a href="${pagesPrefix}register.html" class="nav-btn">Sign Up</a>
     `;

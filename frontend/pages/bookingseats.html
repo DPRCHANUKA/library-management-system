@@ -272,18 +272,20 @@
       SELECTED SEAT(S)
     </label>
     <input type="text" id="seatInput" readonly
-      class="w-full border rounded-lg p-2" placeholder="Click on seats to select">
+      class="w-full border rounded-lg p-2 bg-gray-100" placeholder="Click on seats to select">
     <div id="seatError" class="error-message"></div>
   </div>
   
-  <!-- Date -->
+  <!-- Date - READONLY (User cannot edit, only shows current date) -->
   <div>
     <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
       BOOKING DATE
     </label>
-    <input type="text" id="dateInput" readonly
-      class="w-full border rounded-lg p-2">
+    <input type="date" id="dateInput" readonly
+      class="w-full border rounded-lg p-2 bg-gray-100 cursor-not-allowed" 
+      style="background-color: #f3f4f6; cursor: not-allowed;">
     <div id="dateError" class="error-message"></div>
+    <small class="text-gray-500 text-xs mt-1 block">📅 Bookings are only allowed for today</small>
   </div>
 
   <!-- From Time -->
@@ -291,21 +293,21 @@
     <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
       START TIME
     </label>
-   <input type="time" id="fromTime" min="08:00" max="22:00" class="w-full border rounded-lg p-2" required>
+   <input type="time" id="fromTime" min="08:00" max="18:00" class="w-full border rounded-lg p-2" required>
     <div id="fromTimeError" class="error-message"></div>
   </div>
 
   <!-- To Time -->
   <div>
-    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px;">
+    <label class="block text-sm font-medium mb-1" style="text-transform: uppercase; letter-spacing: 0.5px; ">
       END TIME
     </label>
-<input type="time" id="toTime" min="08:00" max="22:00" class="w-full border rounded-lg p-2" required>
+<input type="time" id="toTime" min="08:00" max="18:00" class="w-full border rounded-lg p-2" required>
     <div id="toTimeError" class="error-message"></div>
   </div>
   
   <button type="submit"
-    class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold uppercase tracking-wide">
+    class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold uppercase tracking-wide hover:bg-blue-700 transition">
     CONFIRM BOOKING
   </button>
 </form>
@@ -323,5 +325,57 @@ fetch("footer.html")
   <!-- Footer -->
  
   <div id="footer"></div>
+    <!-- add chat bot -->
+   <!-- Chatbot Integration -->
+<link rel="stylesheet" href="../css/chatbot.css">
+<div id="chatbot-root">
+    <button id="chatToggle" class="chat-toggle">
+        <span class="chat-icon">💬</span>
+        <span class="close-icon" style="display:none;">✕</span>
+    </button>
+
+    <div id="chatContainer" class="chat-container" style="display: none;">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">🤖</div>
+                <div>
+                    <h3>Library Assistant</h3>
+                    <p id="greetingMessage">Welcome! How can I help you today?</p>
+                </div>
+            </div>
+            <button id="closeChat" class="close-chat">✕</button>
+        </div>
+
+        <div id="chatMessages" class="chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    👋 Hello! I'm your Library Assistant. <br><br>
+                    I can help you with:
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li>📖 Finding books and resources</li>
+                        <li>🪑 Seat booking information</li>
+                        <li>⏰ Library hours and location</li>
+                        <li>📚 Borrowing and returning books</li>
+                        <li>💳 Library membership</li>
+                        <li>❓ Any other library-related questions</li>
+                    </ul>
+                    How can I assist you today?
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <input type="text" id="chatInput" placeholder="Type your message here..." class="chat-input">
+            <button id="sendMessage" class="send-button">📤 Send</button>
+        </div>
+        
+        <div class="chat-footer">
+            <p>Powered by LibraryHub Assistant</p>
+        </div>
+    </div>
+</div>
+
+<script src="../js/chatbot.js"></script>
+</body>
 </body>
 </html>

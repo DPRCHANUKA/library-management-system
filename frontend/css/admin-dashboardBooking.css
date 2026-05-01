@@ -142,7 +142,7 @@ body {
 .table-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 15px;
@@ -166,6 +166,37 @@ body {
 .search-box input:focus {
   outline: none;
   border-color: #60A5FA;
+}
+
+/* Status Filters */
+.status-filters {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: #0F172A;
+  border: 1px solid #334155;
+  color: #E5E7EB;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: #334155;
+  transform: translateY(-2px);
+}
+
+.filter-btn.active {
+  background: #3B82F6;
+  border-color: #3B82F6;
+  color: white;
 }
 
 .table-wrapper {
@@ -203,19 +234,38 @@ body {
   transition: background 0.3s ease;
 }
 
-/* Status Badge */
+/* Status Badge Styles */
 .status-badge {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.status-active {
   background: #10B981;
+  color: white;
+}
+
+.status-upcoming {
+  background: #F59E0B;
+  color: white;
+}
+
+.status-expired {
+  background: #EF4444;
+  color: white;
+}
+
+.status-unknown {
+  background: #6B7280;
   color: white;
 }
 
 .status-cancelled {
   background: #EF4444;
+  color: white;
 }
 
 /* Loading State */
@@ -258,6 +308,95 @@ body {
   text-decoration: underline;
 }
 
+/* Action Buttons in Table */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-edit, .btn-delete {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background: #3B82F6;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #2563EB;
+  transform: translateY(-2px);
+}
+
+.btn-delete {
+  background: #EF4444;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #DC2626;
+  transform: translateY(-2px);
+}
+
+/* Admin Drawer */
+#admin-drawer {
+  background: #1E293B;
+  color: #E5E7EB;
+  border-left: 1px solid #334155;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 400px;
+  z-index: 9999;
+  transition: transform 0.3s ease-in-out;
+}
+
+#admin-drawer .p-4.border-b {
+  border-color: #334155;
+}
+
+#admin-drawer button {
+  background: #3A6EA5;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#admin-drawer button:hover {
+  background: #60A5FA;
+  color: #0F172A;
+}
+
+#admin-drawer input {
+  background: #0F172A;
+  color: #E5E7EB;
+  border: 1px solid #334155;
+}
+
+#admin-drawer input:focus {
+  border-color: #60A5FA;
+  outline: none;
+}
+
+#admin-drawer input[type="time"],
+#drawer-form input[type="date"] {
+  color-scheme: dark;
+}
+
+#admin-drawer label {
+  color: #E5E7EB;
+  font-size: 14px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -285,10 +424,26 @@ body {
     width: 100%;
   }
   
+  .status-filters {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .filter-btn {
+    flex: 1;
+    text-align: center;
+    min-width: 70px;
+  }
+  
   .bookings-table th,
   .bookings-table td {
     padding: 8px;
     font-size: 0.8rem;
+  }
+  
+  #admin-drawer {
+    width: 100%;
+    max-width: 400px;
   }
 }
 
@@ -307,95 +462,25 @@ body {
 .bookings-table-container {
   animation: fadeIn 0.5s ease-out;
 }
-
-
-.btn-edit {
-  background: #4CAF50;
+.btn-download {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
   color: white;
+  padding: 12px 24px;
   border: none;
-  padding: 5px 8px;
-  margin-right: 5px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-   border-radius: 25%;
+  transition: all 0.3s ease;
 }
 
-.btn-edit:hover {
-  background: #45a049;
+.btn-download:hover {
   transform: translateY(-2px);
-
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
 }
 
-
-.btn-delete {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 5px 8px;
-  cursor: pointer;
-  border-radius: 25%;
-}
-
-.btn-delete:hover {
-  background: #d32f2f;
-}
-.btn-delete:hover {
-  background: #d32f2f;
-transform: translateY(-2px);
-}
-
-
-#admin-drawer {
-  background: #1E293B;   /* same as dashboard card */
-  color: #E5E7EB;
-  border-left: 1px solid #334155;
-    top: 0;
-    left: 0;
-  height: 100vh;
-  width: 400px;
-   z-index: 9999; 
-     transition: transform 0.3s ease-in-out;
-}
-
-/* header */
-#admin-drawer .p-4.border-b {
-  border-color: #334155;
-}
-
-/* close button */
-#admin-drawer button {
-  background: #3A6EA5;
-  color: white;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-#admin-drawer button:hover {
-  background: #60A5FA;
-  color: #0F172A;
-}
-
-/* inputs */
-#admin-drawer input {
-  background: #0F172A;
-  color: #E5E7EB;
-  border: 1px solid #334155;
-}
-
-#admin-drawer input:focus {
-  border-color: #60A5FA;
-  outline: none;
-}
-
-
-#admin-drawer input[type="time"],
-#drawer-form input[type="date"] {
-  color-scheme: dark;
-}
-
-#admin-drawer label {
-  color: #E5E7EB;
-  font-size: 14px;
+.btn-download:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Donate or request books at LibraryHub. Share knowledge by donating your books or request books you need.">
+  <title>Donation - LibraryHub</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/donation.css">
+  <link rel="stylesheet" href="../css/footer.css">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="page-container">
+    <div class="page-header">
+      <h1>🎁 Book Donation & Requests</h1>
+    </div>
+
+    <div class="donation-layout">
+      <!-- Left: Add Book Form -->
+      <div class="donation-form-card">
+        <div class="form-title">➕ <span>Add New Book</span></div>
+        <form id="donationForm" class="donation-form">
+          <input type="text" name="title" placeholder="Title *" required>
+          <input type="text" name="author" placeholder="Author">
+          <textarea name="description" placeholder="Description" rows="3"></textarea>
+          <input type="text" name="imageUrl" placeholder="Image URL">
+          <input type="text" name="phone" placeholder="Phone Number (10 digits)">
+          <input type="text" name="nic" placeholder="NIC (e.g. 123456789V or 200012345678)">
+          <select name="type">
+            <option value="Donation">Donation</option>
+            <option value="Request">Request</option>
+          </select>
+          <button type="submit" class="donation-submit-btn">Submit</button>
+        </form>
+      </div>
+
+      <!-- Right: Book Inventory -->
+      <div class="donation-inventory-card">
+        <div class="inventory-header">
+          <div class="inv-title">📖 <span>Book Inventory</span></div>
+          <span class="inventory-count">Total: <span id="bookCount">0</span></span>
+        </div>
+        <div class="donation-book-grid" id="donationGrid">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Footer -->
+  <div id="footer"></div>
+  <script>
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("footer").innerHTML = data;
+      });
+  </script>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js?v=2"></script>
+  <script src="../js/donation.js"></script>
+
+  <!-- Chatbot Integration -->
+  <link rel="stylesheet" href="../css/chatbot.css">
+  <div id="chatbot-root">
+    <button id="chatToggle" class="chat-toggle">
+      <span class="chat-icon">💬</span>
+      <span class="close-icon" style="display:none;">✕</span>
+    </button>
+    <div id="chatContainer" class="chat-container" style="display: none;">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <h3>Library Assistant</h3>
+            <p id="greetingMessage">Welcome! How can I help you today?</p>
+          </div>
+        </div>
+        <button id="closeChat" class="close-chat">✕</button>
+      </div>
+      <div id="chatMessages" class="chat-messages">
+        <div class="message bot-message">
+          <div class="message-content">
+            👋 Hello! I'm your Library Assistant. <br><br>
+            I can help you with:
+            <ul style="margin-top: 8px; margin-left: 20px;">
+              <li>📖 Finding books and resources</li>
+              <li>🪑 Seat booking information</li>
+              <li>⏰ Library hours and location</li>
+              <li>📚 Borrowing and returning books</li>
+              <li>💳 Library membership</li>
+              <li>❓ Any other library-related questions</li>
+            </ul>
+            How can I assist you today?
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <input type="text" id="chatInput" placeholder="Type your message here..." class="chat-input">
+        <button id="sendMessage" class="send-button">📤 Send</button>
+      </div>
+      <div class="chat-footer">
+        <p>Powered by LibraryHub Assistant</p>
+      </div>
+    </div>
+  </div>
+  <script src="../js/chatbot.js"></script>
+</body>
+</html>
