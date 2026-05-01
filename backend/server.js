@@ -14,6 +14,9 @@ app.use(express.urlencoded({ extended: true }));
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, "../frontend")));
 
+// Serve uploaded PDFs
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 // Routes
 const bookingRoutes = require("./routes/bookingRoutes");
 const authRoutes = require("./routes/authRoutes");

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Groups - LibraryHub</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+    .sg-hero{background:linear-gradient(135deg,#1e3a5f 0%,#0f1117 60%);padding:3rem 2rem 2rem;text-align:center}
+    .sg-hero h1{font-size:2.2rem;font-weight:700;color:#fff;margin-bottom:.5rem}
+    .sg-hero p{color:#94a3b8;font-size:1rem}
+    .sg-tabs{display:flex;gap:.5rem;justify-content:center;padding:1.5rem 2rem .5rem;border-bottom:1px solid #1e293b}
+    .sg-tab{padding:.5rem 1.4rem;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-size:.95rem;cursor:pointer;transition:all .2s}
+    .sg-tab.active,.sg-tab:hover{background:#1e3a5f;color:#60a5fa}
+    .sg-container{max-width:1100px;margin:0 auto;padding:2rem}
+    .sg-top-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+    .sg-search{flex:1;min-width:200px;padding:.6rem 1rem;border-radius:8px;border:1px solid #1e293b;background:#1a2035;color:#e2e8f0;font-size:.95rem}
+    .btn-primary{padding:.55rem 1.2rem;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:background .2s}
+    .btn-primary:hover{background:#1d4ed8}
+    .btn-danger{padding:.45rem 1rem;background:#dc2626;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600}
+    .btn-danger:hover{background:#b91c1c}
+    .btn-outline{padding:.45rem 1rem;background:transparent;color:#60a5fa;border:1px solid #2563eb;border-radius:8px;cursor:pointer;font-size:.85rem}
+    .btn-outline:hover{background:#1e3a5f}
+    .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem}
+    .group-card{background:#161d2e;border:1px solid #1e293b;border-radius:12px;padding:1.3rem;transition:border-color .2s,transform .2s;cursor:pointer}
+    .group-card:hover{border-color:#2563eb;transform:translateY(-2px)}
+    .group-card.selected{border-color:#2563eb;background:#1a2540}
+    .group-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem}
+    .group-title{font-size:1.05rem;font-weight:700;color:#e2e8f0}
+    .badge{padding:.25rem .7rem;border-radius:999px;font-size:.75rem;font-weight:600}
+    .badge-private{background:#7c3aed22;color:#a78bfa;border:1px solid #7c3aed44}
+    .badge-public{background:#05966922;color:#34d399;border:1px solid #05966944}
+    .group-meta{color:#64748b;font-size:.85rem;margin-bottom:.5rem}
+    .group-members{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:#94a3b8}
+    .group-actions{display:flex;gap:.5rem;margin-top:1rem}
+    /* Detail Panel */
+    .detail-panel{background:#161d2e;border:1px solid #1e293b;border-radius:12px;padding:1.5rem;margin-top:1.5rem}
+    .detail-panel h2{font-size:1.3rem;font-weight:700;margin-bottom:1rem;color:#60a5fa}
+    .attachments-section{margin-top:1.2rem}
+    .attachments-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+    .attachments-header h3{font-size:1rem;font-weight:600}
+    .upload-area{border:2px dashed #2563eb44;border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:1rem}
+    .upload-area:hover,.upload-area.drag{border-color:#2563eb}
+    .upload-area p{color:#64748b;font-size:.9rem}
+    .upload-area .upload-icon{font-size:2rem;margin-bottom:.4rem}
+    #pdfFileInput{display:none}
+    .attachment-list{display:flex;flex-direction:column;gap:.6rem}
+    .attachment-item{display:flex;align-items:center;gap:.8rem;background:#1a2035;border:1px solid #1e293b;border-radius:8px;padding:.7rem 1rem}
+    .att-icon{font-size:1.4rem}
+    .att-info{flex:1}
+    .att-name{font-size:.9rem;font-weight:600;color:#e2e8f0;word-break:break-all}
+    .att-meta{font-size:.75rem;color:#64748b}
+    .att-actions{display:flex;gap:.4rem}
+    .empty-state{text-align:center;padding:2rem;color:#64748b}
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:#00000088;display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal-overlay.show{display:flex}
+    .modal-box{background:#161d2e;border:1px solid #1e293b;border-radius:14px;padding:2rem;width:90%;max-width:480px;max-height:90vh;overflow-y:auto}
+    .modal-box h2{font-size:1.2rem;font-weight:700;margin-bottom:1.2rem}
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;font-size:.85rem;font-weight:500;color:#94a3b8;margin-bottom:.3rem}
+    .form-group input,.form-group select{width:100%;padding:.6rem .9rem;border-radius:8px;border:1px solid #1e293b;background:#1a2035;color:#e2e8f0;font-size:.9rem}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:#2563eb}
+    .modal-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.2rem}
+    .upload-progress{margin-top:.8rem;display:none}
+    .progress-bar{height:6px;border-radius:3px;background:#1e293b;overflow:hidden;margin-top:.3rem}
+    .progress-fill{height:100%;background:#2563eb;border-radius:3px;transition:width .3s}
+    .toast-container{position:fixed;bottom:1.5rem;right:1.5rem;display:flex;flex-direction:column;gap:.5rem;z-index:9999}
+    .toast{padding:.7rem 1.2rem;border-radius:8px;font-size:.9rem;font-weight:500;animation:fadeIn .3s}
+    .toast.success{background:#065f46;color:#a7f3d0;border:1px solid #10b981}
+    .toast.error{background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444}
+    .toast.info{background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .members-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+    .member-chip{background:#1e293b;border-radius:999px;padding:.2rem .7rem;font-size:.8rem;color:#94a3b8}
+    .section-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin:.8rem 0 .4rem}
+    .no-groups{text-align:center;padding:3rem;color:#64748b}
+    .spinner{display:inline-block;width:1.2rem;height:1.2rem;border:2px solid #2563eb44;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-brand">📚 <span>LibraryHub</span></div>
+    <div class="navbar-links" id="navLinks"></div>
+  </nav>
+
+  <div class="sg-hero">
+    <h1>👥 Study Groups</h1>
+    <p>Collaborate, share resources, and attach PDF materials with your group</p>
+  </div>
+
+  <div class="sg-tabs">
+    <button class="sg-tab active" id="tabAll" onclick="switchTab('all')">All Groups</button>
+    <button class="sg-tab" id="tabMine" onclick="switchTab('mine')">My Groups</button>
+  </div>
+
+  <div class="sg-container">
+    <div class="sg-top-bar">
+      <input type="text" class="sg-search" id="searchInput" placeholder="🔍 Search groups..." oninput="filterGroups()">
+      <button class="btn-primary" onclick="openCreateModal()">+ Create Group</button>
+    </div>
+
+    <div class="groups-grid" id="groupsGrid">
+      <div class="no-groups"><div class="spinner"></div> Loading groups…</div>
+    </div>
+
+    <!-- Detail panel -->
+    <div class="detail-panel" id="detailPanel" style="display:none">
+      <h2 id="detailTitle">Group Details</h2>
+      <div id="detailMeta"></div>
+
+      <div class="attachments-section">
+        <div class="attachments-header">
+          <h3>📎 PDF Attachments</h3>
+          <button class="btn-primary" id="uploadBtn" onclick="document.getElementById('pdfFileInput').click()">⬆ Upload PDF</button>
+        </div>
+        <input type="file" id="pdfFileInput" accept="application/pdf" onchange="uploadPDF(event)">
+
+        <div class="upload-area" id="uploadArea"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleDrop(event)">
+          <div class="upload-icon">📄</div>
+          <p>Drag &amp; drop a PDF here, or click <strong>Upload PDF</strong></p>
+          <p style="font-size:.75rem;margin-top:.3rem;color:#475569">Max 20 MB · PDF only</p>
+        </div>
+
+        <div class="upload-progress" id="uploadProgress">
+          <p style="font-size:.85rem;color:#94a3b8">Uploading…</p>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+
+        <div class="attachment-list" id="attachmentList">
+          <div class="empty-state">No attachments yet. Upload the first PDF!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Group Modal -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal-box">
+      <h2>Create Study Group</h2>
+      <div class="form-group">
+        <label>Group Title *</label>
+        <input type="text" id="newTitle" placeholder="e.g. Data Structures Study Group">
+      </div>
+      <div class="form-group">
+        <label>Module / Subject *</label>
+        <input type="text" id="newModule" placeholder="e.g. CS2040">
+      </div>
+      <div class="form-group">
+        <label>Max Members</label>
+        <input type="number" id="newMaxMembers" value="10" min="2" max="50">
+      </div>
+      <div class="form-group">
+        <label>Visibility</label>
+        <select id="newPrivate">
+          <option value="false">Public (anyone can join)</option>
+          <option value="true">Private (request to join)</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeCreateModal()">Cancel</button>
+        <button class="btn-primary" onclick="createGroup()">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <div id="footer"></div>
+
+  <script>fetch("footer.html").then(r=>r.text()).then(d=>{document.getElementById("footer").innerHTML=d});</script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js?v=3"></script>
+  <script>
+    const API = '/api/study-group/groups';
+    let allGroups = [];
+    let currentGroupId = null;
+    let currentTab = 'all';
+
+    function token() { return localStorage.getItem('token'); }
+    function userId() { const u = getUser(); return u ? u.id : null; }
+
+    // ── Init ─────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth('../')) return;
+      updateNavbar('../');
+      loadGroups();
+    });
+
+    async function loadGroups() {
+      try {
+        const res = await fetch(API, { headers: { Authorization: 'Bearer ' + token() } });
+        allGroups = await res.json();
+        renderGroups();
+      } catch (e) {
+        showToast('Could not load groups', 'error');
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+      document.getElementById('tabMine').classList.toggle('active', tab === 'mine');
+      renderGroups();
+    }
+
+    function filterGroups() { renderGroups(); }
+
+    function renderGroups() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const uid = userId();
+      let groups = allGroups.filter(g => {
+        if (q && !g.title.toLowerCase().includes(q) && !g.module.toLowerCase().includes(q)) return false;
+        if (currentTab === 'mine') {
+          const isMember = g.members && g.members.some(m => (m._id || m) === uid);
+          const isLeader = g.leader && (g.leader._id || g.leader) === uid;
+          return isMember || isLeader;
+        }
+        return true;
+      });
+
+      const grid = document.getElementById('groupsGrid');
+      if (!groups.length) {
+        grid.innerHTML = '<div class="no-groups">No groups found.</div>';
+        return;
+      }
+      grid.innerHTML = groups.map(g => {
+        const memberCount = g.members ? g.members.length : 0;
+        const leaderName = g.leader ? (g.leader.name || g.leader.studentId || 'Unknown') : 'Unknown';
+        const selected = g._id === currentGroupId ? 'selected' : '';
+        return `
+          <div class="group-card ${selected}" onclick="selectGroup('${g._id}')">
+            <div class="group-card-top">
+              <div class="group-title">${escHtml(g.title)}</div>
+              <span class="badge ${g.isPrivate ? 'badge-private' : 'badge-public'}">${g.isPrivate ? '🔒 Private' : '🌐 Public'}</span>
+            </div>
+            <div class="group-meta">📚 ${escHtml(g.module)}</div>
+            <div class="group-members">👤 ${memberCount}/${g.maxMembers} members · Leader: ${escHtml(leaderName)}</div>
+            <div class="group-actions">
+              <button class="btn-outline" onclick="event.stopPropagation();joinGroup('${g._id}')">Join</button>
+              <button class="btn-primary" style="font-size:.8rem;padding:.4rem .9rem" onclick="event.stopPropagation();selectGroup('${g._id}')">📎 Attachments</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function selectGroup(id) {
+      currentGroupId = id;
+      renderGroups();
+      const panel = document.getElementById('detailPanel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      try {
+        const res = await fetch(`${API}/${id}`, { headers: { Authorization: 'Bearer ' + token() } });
+        const g = await res.json();
+        document.getElementById('detailTitle').textContent = g.title;
+        const members = g.members ? g.members.map(m => `<span class="member-chip">${escHtml(m.studentId || m.name || 'User')}</span>`).join('') : '';
+        document.getElementById('detailMeta').innerHTML = `
+          <div class="section-label">Module</div><div>${escHtml(g.module)}</div>
+          <div class="section-label">Members</div><div class="members-list">${members || '<span style="color:#64748b">None yet</span>'}</div>
+        `;
+        renderAttachments(g.attachments || []);
+      } catch (e) {
+        showToast('Failed to load group details', 'error');
+      }
+    }
+
+    function renderAttachments(attachments) {
+      const list = document.getElementById('attachmentList');
+      if (!attachments.length) {
+        list.innerHTML = '<div class="empty-state">No attachments yet. Upload the first PDF!</div>';
+        return;
+      }
+      const uid = userId();
+      list.innerHTML = attachments.map(a => {
+        const uploader = a.uploadedBy ? (a.uploadedBy.studentId || a.uploadedBy.name || 'Unknown') : 'Unknown';
+        const date = a.uploadedAt ? new Date(a.uploadedAt).toLocaleDateString() : '';
+        const canDelete = a.uploadedBy && (a.uploadedBy._id === uid) || isAdmin();
+        return `
+          <div class="attachment-item" id="att-${a._id}">
+            <div class="att-icon">📄</div>
+            <div class="att-info">
+              <div class="att-name">${escHtml(a.filename)}</div>
+              <div class="att-meta">By ${escHtml(uploader)} · ${a.size || ''} · ${date}</div>
+            </div>
+            <div class="att-actions">
+              <a href="${a.fileUrl}" target="_blank" download="${escHtml(a.filename)}" class="btn-outline" style="text-decoration:none;padding:.4rem .8rem">⬇ View</a>
+              ${canDelete ? `<button class="btn-danger" onclick="deleteAttachment('${currentGroupId}','${a._id}')">🗑</button>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Upload PDF ────────────────────────────────────────
+    async function uploadPDF(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      await doUpload(file);
+      event.target.value = '';
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      document.getElementById('uploadArea').classList.remove('drag');
+      const file = event.dataTransfer.files[0];
+      if (file && file.type === 'application/pdf') doUpload(file);
+      else showToast('Only PDF files are allowed', 'error');
+    }
+
+    async function doUpload(file) {
+      if (!currentGroupId) { showToast('Select a group first', 'error'); return; }
+      if (file.size > 20 * 1024 * 1024) { showToast('File too large (max 20 MB)', 'error'); return; }
+
+      const progress = document.getElementById('uploadProgress');
+      const fill = document.getElementById('progressFill');
+      progress.style.display = 'block';
+
+      // Animate progress (fake progress since fetch doesn't give upload events easily)
+      let pct = 0;
+      const interval = setInterval(() => { pct = Math.min(pct + 10, 80); fill.style.width = pct + '%'; }, 200);
+
+      const formData = new FormData();
+      formData.append('pdf', file);
+
+      try {
+        const res = await fetch(`${API}/${currentGroupId}/attachments`, {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token() },
+          body: formData
+        });
+        clearInterval(interval);
+        if (!res.ok) {
+          const err = await res.json();
+          showToast(err.message || 'Upload failed', 'error');
+          progress.style.display = 'none';
+          return;
+        }
+        fill.style.width = '100%';
+        setTimeout(() => { progress.style.display = 'none'; fill.style.width = '0%'; }, 600);
+        showToast('PDF uploaded!', 'success');
+        await selectGroup(currentGroupId);
+      } catch (e) {
+        clearInterval(interval);
+        progress.style.display = 'none';
+        showToast('Upload error: ' + e.message, 'error');
+      }
+    }
+
+    async function deleteAttachment(groupId, attId) {
+      if (!confirm('Delete this attachment?')) return;
+      try {
+        const res = await fetch(`${API}/${groupId}/attachments/${attId}`, {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + token() }
+        });
+        if (!res.ok) { const e = await res.json(); showToast(e.message || 'Delete failed', 'error'); return; }
+        showToast('Attachment deleted', 'success');
+        document.getElementById('att-' + attId)?.remove();
+        const list = document.getElementById('attachmentList');
+        if (!list.children.length) list.innerHTML = '<div class="empty-state">No attachments yet. Upload the first PDF!</div>';
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    // ── Join Group ────────────────────────────────────────
+    async function joinGroup(id) {
+      try {
+        const res = await fetch(`${API}/${id}/join`, {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token() }
+        });
+        const data = await res.json();
+        showToast(data.message || 'Done', res.ok ? 'success' : 'error');
+        if (res.ok) loadGroups();
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    // ── Create Group ──────────────────────────────────────
+    function openCreateModal() { document.getElementById('createModal').classList.add('show'); }
+    function closeCreateModal() { document.getElementById('createModal').classList.remove('show'); }
+
+    async function createGroup() {
+      const title = document.getElementById('newTitle').value.trim();
+      const module = document.getElementById('newModule').value.trim();
+      const maxMembers = parseInt(document.getElementById('newMaxMembers').value) || 10;
+      const isPrivate = document.getElementById('newPrivate').value === 'true';
+      if (!title || !module) { showToast('Title and module are required', 'error'); return; }
+
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token() },
+          body: JSON.stringify({ title, module, maxMembers, isPrivate, path: module })
+        });
+        const data = await res.json();
+        if (!res.ok) { showToast(data.message || 'Create failed', 'error'); return; }
+        showToast('Group created!', 'success');
+        closeCreateModal();
+        await loadGroups();
+        selectGroup(data._id);
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    // ── Helpers ───────────────────────────────────────────
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+  </script>
+</body>
+</html>
