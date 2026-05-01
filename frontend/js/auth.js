@@ -39,7 +39,9 @@ function updateNavbar(prefix = "") {
       <a href="${homeLink}">Home</a>
       <a href="${pagesPrefix}discover.html">Discover Books</a>
       <a href="${pagesPrefix}bookingseats.html">🪑 Book a Seat</a>
+      <a href="${pagesPrefix}study-groups.html">👥 Study Groups</a>
       ${dashboardLink}
+      ${adminLinks}
       <a href="#" id="signOutLink" class="nav-btn-outline">Sign Out</a>
     `;
     document.getElementById("signOutLink").addEventListener("click", (e) => {
